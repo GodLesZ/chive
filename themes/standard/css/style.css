@@ -43,7 +43,7 @@
      */
     #header {
         color      : #000000;
-        background : #3B5998;
+        background : #515151;
         height     : 40px;
         position   : absolute;
         top        : 0px;
@@ -206,9 +206,14 @@
         font-size : 0.9em;
     }
 
-    div.blockUI {
-        background : #EFEFEF url('../../../images/loading_big.gif') no-repeat center center !important;
-        opacity    : 0.6;
+    div.blockUI.blockOverlay {
+        background-color : #EFEFEF;
+        opacity          : 0.6;
+    }
+
+    div.blockUI.blockMsg {
+        background : #FFFFFF url('../../../images/loading_big.gif') no-repeat bottom center;
+        min-height : 170px;
     }
 
     .ui-dialog-content ul {

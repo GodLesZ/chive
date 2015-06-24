@@ -19,13 +19,13 @@
  */
 
 var chive = {
-	
+
 	currentLocation: 	window.location.href,
-	
+
 	// Turn loading indicator on by default
 	loadingIndicator: 	true,
-	
-	
+
+
 	/*
 	 * Initialize chive
 	 */
@@ -33,13 +33,13 @@ var chive = {
 	{
 		// Initialize location checker
 		setInterval(chive.checkLocation, 100);
-		
+
 		// Load first page if anchor is set
 		if(chive.currentLocation.indexOf('#') > -1)
 		{
 			chive.refresh();
 		}
-		
+
 		// Set keyboard shortcuts for Yii pager
 		$(document)
 		.bind('keydown', {combi: 'right', disableInInput: true }, function() {
@@ -56,20 +56,20 @@ var chive = {
 				location.href = li.children('a').attr('href');
 			}
 		});
-	
+
 		// Send keep-alive to server every 5 minutes
 		if(!location.href.indexOf('login'))
 		{
 			setInterval(function() {
 				$.post(baseUrl + '/site/keepAlive', function(response) {
-					if(response != 'OK') 
+					if(response != 'OK')
 					{
 						reload();
 					}
 				});
 			}, 300000);
 		}
-		
+
 		if($('#globalSearch').length)
 		{
 			$('#globalSearch').autocomplete(baseUrl + '/site/search', {
@@ -87,21 +87,24 @@ var chive = {
 					window.location = item.target;
 				});
 		}
-		
+
 		// Initialize loading indicator
 		$(document)
 			.ajaxStart(function() {
 				if(this.loadingIndicator)
 				{
-					$('#loading').css({'background-image': 'url(' + basePath + '/images/loading4.gif)'}).fadeIn();
+					//$('#loading').css({'background-image': 'url(' + basePath + '/images/loading4.gif)'}).fadeIn();
+                    $.blockUI();
 				}
 			})
 			.ajaxStop(function() {
-				$('#loading').css({'background-image': 'url(' + basePath + '/images/loading5.gif)'}).fadeOut();
+				//$('#loading').css({'background-image': 'url(' + basePath + '/images/loading5.gif)'}).fadeOut();
+                $.unblockUI();
 			})
 			.ajaxError(function(error, xhr) {
 				Notification.add('ajaxerror', lang.get('core', 'ajaxRequestFailed'), lang.get('core', 'ajaxRequestFailedText'), xhr.responseText);
-				$('#loading').css({'background-image': 'url(' + basePath + '/images/loading5.gif)'}).fadeOut();
+				//$('#loading').css({'background-image': 'url(' + basePath + '/images/loading5.gif)'}).fadeOut();
+                $.unblockUI();
 			});
 
 	},
@@ -174,19 +177,19 @@ var chive = {
 		else {
 			globalPost = {};
 		}
-		
+
 		window.location.hash = location;
 		chive.currentLocation = window.location.href;
 		chive.refresh();
 	},
-	
+
 	/*
 	 * Refreshes the current page using the anchor name.
 	 */
 	refresh: function()
-	{	
+	{
 		// Build url
-		
+
 		var url = chive.currentLocation
 			.replace(/\?(.+)#/, '')
 			.replace('#', '/')					// Replace # with /
@@ -209,7 +212,7 @@ var chive = {
 			var globalPost = {};
 		});
 	},
-	
+
 	/*
 	 * Reloads the whole page.
 	 */
@@ -217,17 +220,17 @@ var chive = {
 	{
 		window.location.reload();
 	},
-	
+
 	/*
 	 * Checks if current location has changed.
 	 */
 	checkLocation: function()
 	{
-		if(window.location.href != chive.currentLocation) 
+		if(window.location.href != chive.currentLocation)
 		{
 			chive.currentLocation = window.location.href;
 			chive.refresh();
 		}
 	}
-	
+
 };

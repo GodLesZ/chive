@@ -302,6 +302,7 @@
         background  : url(../images/loading4.gif) no-repeat;
         width       : 112px;
         height      : 20px;
+        display     : none;
     }
 
     /*
