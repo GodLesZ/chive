@@ -18,7 +18,7 @@
  * @uses    function_exists()
  * @uses    mb_internal_encoding()
  * @uses    defined()
- * @todo a .lib filename should not have code in main(), split or rename file
+ * @todo    a .lib filename should not have code in main(), split or rename file
  * @package phpMyAdmin
  */
 
@@ -30,12 +30,13 @@ $GLOBALS['PMA_allow_ctype'] = @extension_loaded('ctype');
  * Load proper code for handling input.
  */
 if (defined('PMA_MULTIBYTE_ENCODING') || $GLOBALS['PMA_allow_mbstr']) {
-    $GLOBALS['PMA_strpos']      = 'mb_strpos';
-    $GLOBALS['PMA_substr']      = 'mb_substr';
+    $GLOBALS['PMA_strpos'] = 'mb_strpos';
+    $GLOBALS['PMA_substr'] = 'mb_substr';
     require 'string_mb.lib.php';
-} else {
-    $GLOBALS['PMA_strpos']      = 'strpos';
-    $GLOBALS['PMA_substr']      = 'substr';
+}
+else {
+    $GLOBALS['PMA_strpos'] = 'strpos';
+    $GLOBALS['PMA_substr'] = 'substr';
     require 'string_native.lib.php';
 }
 
@@ -47,7 +48,8 @@ if ($GLOBALS['PMA_allow_ctype']) {
     $GLOBALS['PMA_STR_isDigit'] = 'ctype_digit';
     $GLOBALS['PMA_STR_isSpace'] = 'ctype_space';
     require 'string_type_ctype.lib.php';
-} else {
+}
+else {
     $GLOBALS['PMA_STR_isAlnum'] = 'PMA_STR_isAlnum';
     $GLOBALS['PMA_STR_isDigit'] = 'PMA_STR_isDigit';
     $GLOBALS['PMA_STR_isSpace'] = 'PMA_STR_isSpace';
@@ -61,16 +63,18 @@ if ($GLOBALS['PMA_allow_ctype']) {
  * @uses    PMA_substr()
  * @uses    max()
  * @uses    intval()
+ *
  * @param   string   string to check for
  * @param   integer  the character to check for
  * @param   integer  starting position in the string
+ *
  * @return  boolean  whether the character is escaped or not
  */
 function PMA_STR_charIsEscaped($string, $pos, $start = 0)
 {
-    $pos = max(intval($pos), 0);
+    $pos   = max(intval($pos), 0);
     $start = max(intval($start), 0);
-    $len = PMA_strlen($string);
+    $len   = PMA_strlen($string);
     // Base case:
     // Check for string length or invalid input or special case of input
     // (pos == $start)
@@ -79,7 +83,7 @@ function PMA_STR_charIsEscaped($string, $pos, $start = 0)
     }
 
     $pos--;
-    $escaped     = false;
+    $escaped = false;
     while ($pos >= $start && PMA_substr($string, $pos, 1) == '\\') {
         $escaped = !$escaped;
         $pos--;
@@ -95,6 +99,7 @@ function PMA_STR_charIsEscaped($string, $pos, $start = 0)
  * @param   integer  number to check for
  * @param   integer  lower bound
  * @param   integer  upper bound
+ *
  * @return  boolean  whether the number is in the range or not
  */
 function PMA_STR_numberInRangeInclusive($num, $lower, $upper)
@@ -106,17 +111,15 @@ function PMA_STR_numberInRangeInclusive($num, $lower, $upper)
  * Checks if a character is an SQL identifier
  *
  * @uses    PMA_STR_isAlnum()
+ *
  * @param   string   character to check for
  * @param   boolean  whether the dot character is valid or not
+ *
  * @return  boolean  whether the character is an SQL identifier or not
  */
 function PMA_STR_isSqlIdentifier($c, $dot_is_valid = false)
 {
-    return ($GLOBALS['PMA_STR_isAlnum']($c)
-        || ($ord_c = ord($c)) && $ord_c >= 192 && $ord_c != 215 && $ord_c != 249
-        || $c == '_'
-        || $c == '$'
-        || ($dot_is_valid != false && $c == '.'));
+    return ($GLOBALS['PMA_STR_isAlnum']($c) || ($ord_c = ord($c)) && $ord_c >= 192 && $ord_c != 215 && $ord_c != 249 || $c == '_' || $c == '$' || ($dot_is_valid != false && $c == '.'));
 } // end of the "PMA_STR_isSqlIdentifier()" function
 
 
@@ -138,13 +141,15 @@ function PMA_STR_binarySearchInArr($str, $arr, $arrsize)
     $found  = false;
 
     while ($top >= $bottom && $found == false) {
-        $mid        = intval(($top + $bottom) / 2);
-        $res        = strcmp($str, $arr[$mid]);
+        $mid = intval(($top + $bottom) / 2);
+        $res = strcmp($str, $arr[$mid]);
         if ($res == 0) {
-            $found  = true;
-        } elseif ($res < 0) {
-            $top    = $mid - 1;
-        } else {
+            $found = true;
+        }
+        elseif ($res < 0) {
+            $top = $mid - 1;
+        }
+        else {
             $bottom = $mid + 1;
         }
     } // end while

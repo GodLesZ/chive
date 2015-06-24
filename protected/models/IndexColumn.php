@@ -25,7 +25,7 @@ class IndexColumn extends CActiveRecord
 {
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see        CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -33,7 +33,7 @@ class IndexColumn extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see        CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -41,26 +41,30 @@ class IndexColumn extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see        CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
-		return array(
+		return [
 			'TABLE_SCHEMA',
 			'TABLE_NAME',
 			'INDEX_NAME',
 			'COLUMN_NAME',
-		);
+		];
 	}
 
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see        CActiveRecord::relations()
 	 */
 	public function relations()
 	{
-		return array(
-			'index' => array(self::BELONGS_TO, 'Index', 'TABLE_SCHEMA, TABLE_NAME, INDEX_NAME'),
-		);
+		return [
+			'index' => [
+				self::BELONGS_TO,
+				'Index',
+				'TABLE_SCHEMA, TABLE_NAME, INDEX_NAME'
+			],
+		];
 	}
 
 }

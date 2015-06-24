@@ -58,7 +58,7 @@ class StorageEngineTest extends CTestCase
 		$this->assertFalse(StorageEngine::check('innodb', StorageEngine::SUPPORTS_CHECKSUM));
 		$this->assertFalse(StorageEngine::check('innodb', StorageEngine::SUPPORTS_PACK_KEYS));
 
-		$db_arr = array(
+		$db_arr = [
 			'memory',
 			'berkeleydb',
 			'blackhole',
@@ -68,11 +68,10 @@ class StorageEngineTest extends CTestCase
 			'ndbcluster',
 			'federated',
 			'mrg_myisam',
-			'isam',	
-		);
+			'isam',
+		];
 
-		foreach($db_arr as $db)
-		{
+		foreach ($db_arr as $db) {
 			$this->assertFalse(StorageEngine::check($db, StorageEngine::SUPPORTS_FOREIGN_KEYS));
 			$this->assertFalse(StorageEngine::check($db, StorageEngine::SUPPORTS_DELAY_KEY_WRITE));
 			$this->assertFalse(StorageEngine::check($db, StorageEngine::SUPPORTS_CHECKSUM));
@@ -98,7 +97,7 @@ class StorageEngineTest extends CTestCase
 	 */
 	public function testLoad()
 	{
-		$engines = array(
+		$engines = [
 			'MyISAM',
 			'MEMORY',
 			'InnoDB',
@@ -111,19 +110,19 @@ class StorageEngineTest extends CTestCase
 			'FEDERATED',
 			'MRG_MYISAM',
 			'ISAM'
-		);
+		];
 
-		foreach($engines as $engine)
-		{
-			$se = StorageEngine::model()->findAllByAttributes(array(
-				'Engine' => $engine	
-			));
-			
-			if(count($se) == 0)
+		foreach ($engines as $engine) {
+			$se = StorageEngine::model()->findAllByAttributes([
+																  'Engine' => $engine
+															  ]);
+
+			if (count($se) == 0) {
 				continue;
-				
+			}
+
 			$se = $se[0];
-			
+
 			$this->assertType('StorageEngine', $se);
 			$this->assertType('string', $se->Comment);
 			$this->assertType('string', $se->Support);
@@ -135,7 +134,7 @@ class StorageEngineTest extends CTestCase
 	 */
 	public function testSupports()
 	{
-		$db_arr = array(
+		$db_arr = [
 			'MEMORY',
 			'BerkeleyDB',
 			'BLACKHOLE',
@@ -145,17 +144,17 @@ class StorageEngineTest extends CTestCase
 			'ndbcluster',
 			'FEDERATED',
 			'MRG_MYISAM',
-			'ISAM',	
-		);
+			'ISAM',
+		];
 
-		foreach($db_arr as $db)
-		{
-			$se = StorageEngine::model()->findAllByAttributes(array(
-				'Engine' => $db	
-			));
-			
-			if(count($se) == 0)
+		foreach ($db_arr as $db) {
+			$se = StorageEngine::model()->findAllByAttributes([
+																  'Engine' => $db
+															  ]);
+
+			if (count($se) == 0) {
 				continue;
+			}
 
 			$this->assertFalse($se[0]->getSupportsChecksum());
 			$this->assertFalse($se[0]->getSupportsPackKeys());
@@ -163,21 +162,21 @@ class StorageEngineTest extends CTestCase
 
 		}
 
-		$se = StorageEngine::model()->findAllByAttributes(array(
-			'Engine' => 'MyISAM'	
-		));
+		$se = StorageEngine::model()->findAllByAttributes([
+															  'Engine' => 'MyISAM'
+														  ]);
 
 		$this->assertTrue($se[0]->getSupportsChecksum());
 		$this->assertTrue($se[0]->getSupportsPackKeys());
 		$this->assertTrue($se[0]->getSupportsDelayKeyWrite());
 
-		$se = StorageEngine::model()->findAllByAttributes(array(
-			'Engine' => 'InnoDB'	
-		));
+		$se = StorageEngine::model()->findAllByAttributes([
+															  'Engine' => 'InnoDB'
+														  ]);
 
 		$this->assertFalse($se[0]->getSupportsChecksum());
 		$this->assertFalse($se[0]->getSupportsPackKeys());
 		$this->assertFalse($se[0]->getSupportsDelayKeyWrite());
 	}
-	
+
 }

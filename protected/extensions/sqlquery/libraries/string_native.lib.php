@@ -20,11 +20,13 @@
  * Returns length of string depending on current charset.
  *
  * @uses    strlen()
+ *
  * @param   string   string to count
+ *
  * @return  int      string length
  * @access  public
  * @author  nijel
- * @todo rename to PM_STR_len()
+ * @todo    rename to PM_STR_len()
  */
 function PMA_strlen($string)
 {
@@ -35,13 +37,15 @@ function PMA_strlen($string)
  * Returns substring from string, works depending on current charset.
  *
  * @uses    substr()
+ *
  * @param   string   string to count
  * @param   int      start of substring
  * @param   int      length of substring
+ *
  * @return  int      substring
  * @access  public
  * @author  nijel
- * @todo rename to PM_STR_sub()
+ * @todo    rename to PM_STR_sub()
  */
 function PMA_substr($string, $start, $length = 2147483647)
 {
@@ -52,8 +56,10 @@ function PMA_substr($string, $start, $length = 2147483647)
  * returns postion of $needle in $haystack or false if not found
  *
  * @uses    strpos()
- * @param   string  $needle
- * @param   string  $haystack
+ *
+ * @param   string $needle
+ * @param   string $haystack
+ *
  * @return  integer position of $needle in $haystack or false
  */
 function PMA_STR_pos($haystack, $needle, $offset = 0)
@@ -65,8 +71,10 @@ function PMA_STR_pos($haystack, $needle, $offset = 0)
  * returns right most postion of $needle in $haystack or false if not found
  *
  * @uses    strrpos()
- * @param   string  $needle
- * @param   string  $haystack
+ *
+ * @param   string $needle
+ * @param   string $haystack
+ *
  * @return  integer position of $needle in $haystack or false
  */
 function PMA_STR_rPos($haystack, $needle, $offset = 0)

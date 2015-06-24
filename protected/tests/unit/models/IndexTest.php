@@ -25,26 +25,15 @@ class IndexTest extends ChiveTestCase
 {
 
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/IndexTest.sql');
-
-		Table::$db =
-		Index::$db = $this->createDbConnection('indextest');
-	}
-
-	/**
 	 * Loads indices of test table.
 	 */
 	public function testLoad()
 	{
 		// Load table
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'indextest',
-			'TABLE_NAME' => 'table1',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'indextest',
+											  'TABLE_NAME'   => 'table1',
+										  ]);
 
 		// Check index count
 		$this->assertEquals(4, count($table->indices));
@@ -77,14 +66,13 @@ class IndexTest extends ChiveTestCase
 	public function testDelete()
 	{
 		// Load table
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'indextest',
-			'TABLE_NAME' => 'table2',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'indextest',
+											  'TABLE_NAME'   => 'table2',
+										  ]);
 
 		// Delete all indices
-		foreach($table->indices AS $index)
-		{
+		foreach ($table->indices AS $index) {
 			$this->assertNotSame(false, $index->delete());
 		}
 
@@ -103,14 +91,14 @@ class IndexTest extends ChiveTestCase
 	public function testDeleteAutoIncrement()
 	{
 		// Load table
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'indextest',
-			'TABLE_NAME' => 'table1',
-		));
-		
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'indextest',
+											  'TABLE_NAME'   => 'table1',
+										  ]);
+
 		// Delete key
 		$index = $table->indices[0];
-		$res = $index->delete();
+		$res   = $index->delete();
 
 		// Check result
 		$this->assertEquals(false, $res);
@@ -126,11 +114,11 @@ class IndexTest extends ChiveTestCase
 	public function testUpdate()
 	{
 		// Load index
-		$index = Index::model()->findByAttributes(array(
-			'INDEX_NAME' => 'PRIMARY',
-			'TABLE_NAME' => 'table2',
-			'TABLE_SCHEMA' => 'indextest',
-		));
+		$index                  = Index::model()->findByAttributes([
+																	   'INDEX_NAME'   => 'PRIMARY',
+																	   'TABLE_NAME'   => 'table2',
+																	   'TABLE_SCHEMA' => 'indextest',
+																   ]);
 		$index->throwExceptions = true;
 
 		// Change properties
@@ -138,22 +126,26 @@ class IndexTest extends ChiveTestCase
 		$index->setType('UNIQUE');
 
 		// Add new column
-		$columns = $index->columns;
-		$col = new IndexColumn();
+		$columns          = $index->columns;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'pk';
-		$columns[] = $col;
-		$col = new IndexColumn();
+		$columns[]        = $col;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'varchar';
-		$col->SUB_PART = 10;
-		$columns[] = $col;
-		$index->columns = $columns;
+		$col->SUB_PART    = 10;
+		$columns[]        = $col;
+		$index->columns   = $columns;
 
 		// Try saving
 		$index->save();
 
 		// Reload index and load index columns
 		$index->refresh();
-		$cols = IndexColumn::model()->findAllByAttributes(array('TABLE_SCHEMA' => $index->TABLE_SCHEMA, 'TABLE_NAME' => $index->TABLE_NAME, 'INDEX_NAME' => $index->INDEX_NAME));
+		$cols = IndexColumn::model()->findAllByAttributes([
+															  'TABLE_SCHEMA' => $index->TABLE_SCHEMA,
+															  'TABLE_NAME'   => $index->TABLE_NAME,
+															  'INDEX_NAME'   => $index->INDEX_NAME
+														  ]);
 
 		// Check properties
 		$this->assertEquals(2, count($cols));
@@ -163,10 +155,10 @@ class IndexTest extends ChiveTestCase
 		$this->assertEquals(10, $cols[1]->SUB_PART);
 
 		// Create PRIMARY
-		$index = new Index();
-		$index->TABLE_NAME = 'table2';
+		$index               = new Index();
+		$index->TABLE_NAME   = 'table2';
 		$index->TABLE_SCHEMA = 'indextest';
-		$index->INDEX_NAME = 'PRIMARY';
+		$index->INDEX_NAME   = 'PRIMARY';
 		$index->setType('PRIMARY');
 		$index->columns = $columns;
 		$index->save();
@@ -208,40 +200,44 @@ class IndexTest extends ChiveTestCase
 	 */
 	public function testInsertExisting()
 	{
-		$index = Index::model()->findByAttributes(array(
-			'INDEX_NAME' => 'index',
-			'TABLE_NAME' => 'table2',
-			'TABLE_SCHEMA' => 'indextest',
-		));
+		$index = Index::model()->findByAttributes([
+													  'INDEX_NAME'   => 'index',
+													  'TABLE_NAME'   => 'table2',
+													  'TABLE_SCHEMA' => 'indextest',
+												  ]);
 		$index->insert();
 	}
 
 	public function testCreate()
 	{
 		// Create index
-		$index = new Index();
-		$index->TABLE_NAME = 'table2';
+		$index               = new Index();
+		$index->TABLE_NAME   = 'table2';
 		$index->TABLE_SCHEMA = 'indextest';
-		$index->INDEX_NAME = 'newname';
+		$index->INDEX_NAME   = 'newname';
 		$index->setType('UNIQUE');
 
 		// Add new column
-		$columns = $index->columns;
-		$col = new IndexColumn();
+		$columns          = $index->columns;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'pk';
-		$columns[] = $col;
-		$col = new IndexColumn();
+		$columns[]        = $col;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'varchar';
-		$col->SUB_PART = 10;
-		$columns[] = $col;
-		$index->columns = $columns;
+		$col->SUB_PART    = 10;
+		$columns[]        = $col;
+		$index->columns   = $columns;
 
 		// Try saving
 		$index->save();
 
 		// Reload index and load index columns
 		$index->refresh();
-		$cols = IndexColumn::model()->findAllByAttributes(array('TABLE_SCHEMA' => $index->TABLE_SCHEMA, 'TABLE_NAME' => $index->TABLE_NAME, 'INDEX_NAME' => $index->INDEX_NAME));
+		$cols = IndexColumn::model()->findAllByAttributes([
+															  'TABLE_SCHEMA' => $index->TABLE_SCHEMA,
+															  'TABLE_NAME'   => $index->TABLE_NAME,
+															  'INDEX_NAME'   => $index->INDEX_NAME
+														  ]);
 
 		// Check properties
 		$this->assertEquals(2, count($cols));
@@ -266,7 +262,6 @@ class IndexTest extends ChiveTestCase
 		$this->assertTrue(is_array(Index::getIndexTypes()));
 	}
 
-
 	/**
 	 * Tests to add an Index to a Column with Type Fulltext
 	 */
@@ -275,34 +270,33 @@ class IndexTest extends ChiveTestCase
 	{
 
 		// Create index
-		$index = new Index();
-		$index->TABLE_NAME = 'table2';
+		$index               = new Index();
+		$index->TABLE_NAME   = 'table2';
 		$index->TABLE_SCHEMA = 'indextest';
-		$index->INDEX_NAME = 'newname';
+		$index->INDEX_NAME   = 'newname';
 		$index->setType('FULLTEXT');
 
 		// Add new column
-		$columns = $index->columns;
-		$col = new IndexColumn();
+		$columns          = $index->columns;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'pk';
-		$columns[] = $col;
-		$col = new IndexColumn();
+		$columns[]        = $col;
+		$col              = new IndexColumn();
 		$col->COLUMN_NAME = 'varchar';
-		$col->SUB_PART = 10;
-		$columns[] = $col;
-		$index->columns = $columns;
+		$col->SUB_PART    = 10;
+		$columns[]        = $col;
+		$index->columns   = $columns;
 
 		// Try saving
 		$index->save();
 
 		// Reload index and load index columns
 		$index->refresh();
-		$cols = IndexColumn::model()->findAllByAttributes(
-		array(
-		'TABLE_SCHEMA' => $index->TABLE_SCHEMA,
-		 'TABLE_NAME' => $index->TABLE_NAME, 
-		 'INDEX_NAME' => $index->INDEX_NAME
-		));
+		$cols = IndexColumn::model()->findAllByAttributes([
+															  'TABLE_SCHEMA' => $index->TABLE_SCHEMA,
+															  'TABLE_NAME'   => $index->TABLE_NAME,
+															  'INDEX_NAME'   => $index->INDEX_NAME
+														  ]);
 
 		// Check properties
 		$this->assertEquals('newname', $index->INDEX_NAME);
@@ -310,16 +304,14 @@ class IndexTest extends ChiveTestCase
 
 	}
 
-
-
 	public function testUpdatePrimaryKey()
 	{
 		// Load index
-		$index = Index::model()->findByAttributes(array(
-			'INDEX_NAME' => 'UNIQUE',
-			'TABLE_NAME' => 'table4',
-			'TABLE_SCHEMA' => 'indextest',
-		));
+		$index = Index::model()->findByAttributes([
+													  'INDEX_NAME'   => 'UNIQUE',
+													  'TABLE_NAME'   => 'table4',
+													  'TABLE_SCHEMA' => 'indextest',
+												  ]);
 		$index->setType('PRIMARY');
 
 		// Try saving
@@ -332,6 +324,16 @@ class IndexTest extends ChiveTestCase
 		// Check properties
 		$this->assertEquals('PRIMARY', $index->INDEX_NAME);
 		$this->assertEquals('PRIMARY', $index->getType());
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/IndexTest.sql');
+
+		Table::$db = Index::$db = $this->createDbConnection('indextest');
 	}
 
 }

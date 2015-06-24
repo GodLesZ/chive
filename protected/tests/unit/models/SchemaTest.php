@@ -24,16 +24,6 @@
 class SchemaTest extends ChiveTestCase
 {
 
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/SchemaTest.sql');
-		
-		Schema::$db = $this->createDbConnection('information_schema');
-	}
-
-	/*
-	 * Tests to read database information.
-	 */
 	public function testRead()
 	{
 		// Load schema
@@ -46,15 +36,16 @@ class SchemaTest extends ChiveTestCase
 	}
 
 	/*
-	 * Tests to create a new database.
+	 * Tests to read database information.
 	 */
+
 	public function testInsert()
 	{
 		// Create new schema
 		$schema = new Schema();
 
 		// Set properties
-		$schema->SCHEMA_NAME = 'schematest1';
+		$schema->SCHEMA_NAME            = 'schematest1';
 		$schema->DEFAULT_COLLATION_NAME = 'latin1_swedish_ci';
 
 		// Save
@@ -70,8 +61,9 @@ class SchemaTest extends ChiveTestCase
 	}
 
 	/*
-	 * Tests to fail inserting.
+	 * Tests to create a new database.
 	 */
+
 	public function testInsertFails()
 	{
 		// Create new schema
@@ -86,6 +78,10 @@ class SchemaTest extends ChiveTestCase
 		// Check if schema has errors
 		$this->assertEquals(true, $schema->hasErrors());
 	}
+
+	/*
+	 * Tests to fail inserting.
+	 */
 
 	/**
 	 * Tests to insert a database which is not new.
@@ -107,7 +103,7 @@ class SchemaTest extends ChiveTestCase
 	public function testUpdateFails()
 	{
 		// Create new schema
-		$schema = new Schema(array('SCHEMA_NAME' => 'schematest1'));
+		$schema = new Schema(['SCHEMA_NAME' => 'schematest1']);
 
 		// Save schema
 		$schema->save();
@@ -130,7 +126,7 @@ class SchemaTest extends ChiveTestCase
 	public function testUpdateNew()
 	{
 		// Create new schema
-		$schema = new Schema(array('SCHEMA_NAME' => 'schematest1'));
+		$schema = new Schema(['SCHEMA_NAME' => 'schematest1']);
 
 		// Call update instead of save/insert -> Exception should be thrown.
 		$schema->update();
@@ -144,7 +140,7 @@ class SchemaTest extends ChiveTestCase
 	public function testDeleteNew()
 	{
 		// Create new schema
-		$schema = new Schema(array('SCHEMA_NAME' => 'schematest1'));
+		$schema = new Schema(['SCHEMA_NAME' => 'schematest1']);
 
 		// Call delete -> Exception should be thrown.
 		$schema->delete();
@@ -200,6 +196,13 @@ class SchemaTest extends ChiveTestCase
 
 		// Load again
 		$this->assertEquals(null, Schema::model()->findByPk('schematest2'));
+	}
+
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/SchemaTest.sql');
+
+		Schema::$db = $this->createDbConnection('information_schema');
 	}
 
 }

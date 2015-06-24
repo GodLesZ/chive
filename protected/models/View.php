@@ -23,11 +23,11 @@
 
 class View extends CActiveRecord
 {
-	
+
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see        CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +35,7 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see        CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -43,89 +43,91 @@ class View extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see        CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
-		return array(
+		return [
 			'TABLE_SCHEMA',
 			'TABLE_NAME',
-		);
+		];
 	}
-	
+
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see        CActiveRecord::relations()
 	 */
 	public function relations()
 	{
-		return array(
-			'columns' => array(self::HAS_MANY, 'Column', 'TABLE_SCHEMA, TABLE_NAME'),
-		);
+		return [
+			'columns' => [
+				self::HAS_MANY,
+				'Column',
+				'TABLE_SCHEMA, TABLE_NAME'
+			],
+		];
 	}
 
 	/**
-	 * @see		CActiveRecord::attributeLabels()
+	 * @see        CActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
-		return array(
+		return [
 			'IS_UPDATABLE' => Yii::t('core', 'updatable'),
-		);
+		];
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see        CActiveRecord::delete()
 	 */
 	public function delete()
 	{
-		$sql = 'DROP VIEW ' . self::$db->quoteTableName($this->TABLE_NAME) . ';';
+		$sql = 'DROP VIEW '.self::$db->quoteTableName($this->TABLE_NAME).';';
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
+
 			return $sql;
 		}
-		catch(CDbException $ex)
-		{
+		catch (CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
 
 	/**
-	 * Returns the CREATE VIEW statement for this view.
-	 *
-	 * @return	string
-	 */
-	public function getCreateView()
-	{
-		$cmd = self::$db->createCommand('SHOW CREATE VIEW ' . self::$db->quoteTableName($this->TABLE_SCHEMA) . '.' . self::$db->quoteTableName($this->TABLE_NAME));
-		$res = $cmd->queryRow(false);
-		return $res[1];
-	}
-
-	/**
 	 * Returns the ALTER VIEW statement for this view.
 	 *
-	 * @return	string
+	 * @return    string
 	 */
 	public function getAlterView()
 	{
-		return 'ALTER' . substr($this->getCreateView(), 6);
+		return 'ALTER'.substr($this->getCreateView(), 6);
 	}
-	
+
+	/**
+	 * Returns the CREATE VIEW statement for this view.
+	 *
+	 * @return    string
+	 */
+	public function getCreateView()
+	{
+		$cmd = self::$db->createCommand('SHOW CREATE VIEW '.self::$db->quoteTableName($this->TABLE_SCHEMA).'.'.self::$db->quoteTableName($this->TABLE_NAME));
+		$res = $cmd->queryRow(false);
+
+		return $res[1];
+	}
+
 	public function getIsUpdatable()
 	{
-		if($this->getAttribute('IS_UPDATABLE') === "YES")
-		{
-			return true;	
-		}	
-		else
-		{
+		if ($this->getAttribute('IS_UPDATABLE') === "YES") {
+			return true;
+		}
+		else {
 			return false;
 		}
 	}
-	
+
 }

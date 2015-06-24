@@ -26,47 +26,43 @@ class BrowsePage extends CModel
 	/*
 	 * Private properties
 	 */
+	public $query             = '';
+	public $db;
+	public $schema            = null;
+	public $table             = null;
+	public $tables            = [];
+	public $route;
+	public $formTarget        = '';
+	public $singleTableSelect = true;
+	public $showInput = true;
+	public $execute   = true;
 	private $pagination;
 	private $hasResultSet;
 	private $queryType;
 	private $columns;
 	private $sort;
 	private $data;
-	private $response;
-	private $isUpdatable = null;
-	private $start = 0;
-	private $pageSize = 0;
-	private $total = 0;
-	private $_table;
-	
-	private $lastResultSetQuery;
-	
-	private $originalQueries = array();
-	private $executedQueries = array();
-	
-	private $nonEditableSchemas = array(
-		'information_schema'
-		#'mysql'
-	);
 
 	/*
 	 * Properties
 	 */
-	public $query = '';
-	public $db;
-	public $schema = null;
-	public $table = null;
-	public $tables = array();
-	public $route;
-	public $formTarget = '';
-	public $singleTableSelect = true;
-	
+	private $response;
+	private $isUpdatable = null;
+	private $start       = 0;
+	private $pageSize    = 0;
+	private $total       = 0;
+	private $_table;
+	private $lastResultSetQuery;
+	private $originalQueries = [];
+
 	/*
 	 * Settings
 	 */
-	public $showInput = true;
-	public $execute = true;
-
+	private $executedQueries = [];
+	private $nonEditableSchemas = [
+		'information_schema'
+		#'mysql'
+	];
 
 	public function __construct()
 	{
@@ -75,258 +71,225 @@ class BrowsePage extends CModel
 
 	public function attributeNames()
 	{
-		return array();
+		return [];
 	}
 
 	public function safeAttributes()
 	{
-		return array();
+		return [];
 	}
-	
+
 	public function run()
 	{
 		$response = new AjaxResponse();
-		
+
 		$profiling = Yii::app()->user->settings->get('profiling');
 
-		try
-		{
+		try {
 			$sqlQuery = new SqlQuery($this->query);
 		}
-		catch(SQPException $ex)
-		{
-			$response->addNotification('error', 
-				Yii::t('core', 'errorExecuteQuery'), 
-				$ex->getMessage());
-				
+		catch (SQPException $ex) {
+			$response->addNotification('error', Yii::t('core', 'errorExecuteQuery'), $ex->getMessage());
+
 			$this->response = $response;
+
 			return;
 		}
-			
-		if(!$this->query)
-		{
+
+		if (!$this->query) {
 			$this->query = $this->getDefaultQuery();
-			$queries = (array)$this->query;
+			$queries     = (array)$this->query;
 		}
-		else
-		{
-			if($profiling)
-			{
+		else {
+			if ($profiling) {
 				$cmd = $this->db->createCommand('FLUSH STATUS');
 				$cmd->execute();
 
 				$cmd = $this->db->createCommand('SET PROFILING = 1');
-				
+
 				$cmd->execute();
 			}
 
 			$splitter = new SqlSplitter($this->query);
-			$queries = $splitter->getQueries();
+			$queries  = $splitter->getQueries();
 		}
-		
-		if($this->execute)
-		{
+
+		if ($this->execute) {
 			$queryCount = count($queries);
 
 			$i = 1;
-			foreach($queries AS $query)
-			{
-				try
-				{
+			foreach ($queries AS $query) {
+				try {
 					$sqlQuery = new SqlQuery($query);
 				}
-				catch(SQPException $ex)
-				{
-					$response->addNotification('error', 
-						Yii::t('core', 'errorExecuteQuery'), 
-						$ex->getMessage());
+				catch (SQPException $ex) {
+					$response->addNotification('error', Yii::t('core', 'errorExecuteQuery'), $ex->getMessage());
 					break;
 				}
-				
+
 				$type = $sqlQuery->getType();
 
 				$this->table = $sqlQuery->getTable();
-				
+
 				$this->tables = $sqlQuery->getTables();
 
 				$this->singleTableSelect = count($this->tables) == 1;
-				
+
 				// SELECT
-				if($type == "select")
-				{
+				if ($type == "select") {
 
 					// Pagination
-					$pages = new Pagination();
+					$pages        = new Pagination();
 					$pages->route = $this->route;
-					$pageSize = $pages->setupPageSize('pageSize', 'schema.table.browse');
-					
+					$pageSize     = $pages->setupPageSize('pageSize', 'schema.table.browse');
+
 					// Sorting
-					$sort = new Sort($this->db);
+					$sort            = new Sort($this->db);
 					$sort->multiSort = false;
-					$sort->route = $this->route;
-					
+					$sort->route     = $this->route;
+
 					$sqlQuery->applyCalculateFoundRows();
-					
+
 					$limit = $sqlQuery->getLimit();
 					$order = $sqlQuery->getOrder();
-					
+
 					// Apply sort
-					if($sort->getOrder())
-					{
+					if ($sort->getOrder()) {
 						$sqlQuery->applySort($sort->getOrder(), true);
 					}
-					
-					if(isset($_REQUEST['page']))
-					{
+
+					if (isset($_REQUEST['page'])) {
 						$offset = $_REQUEST['page'] * $pageSize - $pageSize;
 						$sqlQuery->applyLimit($pageSize, $offset, true);
 					}
-					
+
 					// Set pagesize from query limit
-					if($limit && !isset($_REQUEST[$pages->pageSizeVar]))
-					{
+					if ($limit && !isset($_REQUEST[$pages->pageSizeVar])) {
 						$_REQUEST[$pages->pageSizeVar] = $limit['length'];
-						$pageSize = $pages->setupPageSize('pageSize', 'schema.table.browse');
-						$offset = $limit['start'];
+						$pageSize                      = $pages->setupPageSize('pageSize', 'schema.table.browse');
+						$offset                        = $limit['start'];
 					}
 					// Apply standard limit
-					elseif(!$limit)
-					{
+					elseif (!$limit) {
 						$offset = 0;
 						$sqlQuery->applyLimit($pageSize, $offset, true);
 					}
-					
+
 					// New pagesize has been set, apply new pagesize
-					elseif(isset($_REQUEST[$pages->pageSizeVar]))
-					{
+					elseif (isset($_REQUEST[$pages->pageSizeVar])) {
 						$pageSize = $pages->setupPageSize('pageSize', 'schema.table.browse');
-						$offset = 0;
+						$offset   = 0;
 						$sqlQuery->applyLimit($pageSize, $offset, true);
 					}
 
 					$this->start = (int)$offset;
-					
+
 				}
-				
+
 				// OTHER
-				elseif($type == "insert" || $type == "update" || $type == "delete")
-				{
+				elseif ($type == "insert" || $type == "update" || $type == "delete") {
 					#predie("insert / update / delete statement");
 					$response->refresh = true;
-					
+
 				}
-				elseif($type == "show")
-				{
+				elseif ($type == "show") {
 					// show create table etc.
 
 				}
-				elseif($type == "explain")
-				{
-					
+				elseif ($type == "explain") {
+
 				}
-				
-				elseif($type == "analyze" || $type == "optimize" || $type == "repair" || $type == "check")
-				{
+
+				elseif ($type == "analyze" || $type == "optimize" || $type == "repair" || $type == "check") {
 					// Table functions
 				}
-				elseif($type == "use")
-				{
+				elseif ($type == "use") {
 					$name = $sqlQuery->getDatabase();
-					if($queryCount == 1 && $name && $this->schema != $name)
-					{
-						$response->redirectUrl = Yii::app()->baseUrl . '/schema/' . $name . '#sql';
-						$response->addNotification('success', Yii::t('core', 'successChangeDatabase', array('{name}' => $name)));
+					if ($queryCount == 1 && $name && $this->schema != $name) {
+						$response->redirectUrl = Yii::app()->baseUrl.'/schema/'.$name.'#sql';
+						$response->addNotification('success', Yii::t('core', 'successChangeDatabase', ['{name}' => $name]));
 					}
 				}
-				elseif($type == "create")
-				{
+				elseif ($type == "create") {
 					$response->reload = true;
 
 				}
-				elseif($type == "drop")
-				{
+				elseif ($type == "drop") {
 					$response->reload = true;
 				}
-				
+
 				$this->executedQueries[] = $sqlQuery->getQuery();
 				$this->originalQueries[] = $sqlQuery->getOriginalQuery();
 
-				if($type == "select")
-				{
-					$pages->postVars = 
-					$sort->postVars = array(
+				if ($type == "select") {
+					$pages->postVars = $sort->postVars = [
 						'query' => $sqlQuery->getOriginalQuery()
-					);
+					];
 				}
-				
+
 				// Prepare query for execution
 				$cmd = $this->db->createCommand($sqlQuery->getQuery());
 				$cmd->prepare();
 
-				if($this->hasResultSet = $sqlQuery->returnsResultSet() !== false)
-				{
+				if ($this->hasResultSet = $sqlQuery->returnsResultSet() !== false) {
 
-					try
-					{
+					try {
 						// Fetch data
 						$start = microtime(true);
-						$data = $cmd->queryAll();
-						$time = round(microtime(true) - $start, 6);
-						
+						$data  = $cmd->queryAll();
+						$time  = round(microtime(true) - $start, 6);
+
 						SqlUtil::FixTable($data);
-						
-						if($type == 'select')
-						{
+
+						if ($type == 'select') {
 							$total = (int)$this->db->createCommand('SELECT FOUND_ROWS()')->queryScalar();
 							$pages->setItemCount($total);
 							$this->total = $total;
-							
-							$keyData = array();
+
+							$keyData = [];
 						}
 
-						$columns = array();
+						$columns = [];
 
 						// Fetch column headers
-						if(isset($data[0]))
-						{
+						if (isset($data[0])) {
 							$columns = array_keys($data[0]);
 						}
 
 						$isSent = true;
-						
+
 						$this->lastResultSetQuery = $sqlQuery->getOriginalQuery();
 
 					}
-					catch (CDbException $ex)
-					{
+					catch (CDbException $ex) {
 						$ex = new DbException($cmd);
 						$response->addNotification('error', Yii::t('core', 'errorExecuteQuery'), $ex->getText(), $ex->getSql());
 					}
 
 
 				}
-				else
-				{
-					try
-					{
+				else {
+					try {
 						// Measure time
 						$start = microtime(true);
-						
-						$result = $cmd->execute();
-						$time = round(microtime(true) - $start, 6);
 
-						$response->addNotification('success', 
-						Yii::t('core', 'successExecuteQuery'), 
-						Yii::t('core', 'affectedRowsQueryTime', 
-							array($result,  '{rows}'=>$result, '{time}'=>$time)), 
-							$sqlQuery->getQuery());
+						$result = $cmd->execute();
+						$time   = round(microtime(true) - $start, 6);
+
+						$response->addNotification('success', Yii::t('core', 'successExecuteQuery'), Yii::t('core', 'affectedRowsQueryTime', [
+																													  $result,
+																													  '{rows}' => $result,
+																													  '{time}' => $time
+																												  ]), $sqlQuery->getQuery());
 
 
 					}
-					catch(CDbException $ex)
-					{
+					catch (CDbException $ex) {
 						$dbException = new DbException($cmd);
-						$response->addNotification('error', Yii::t('core', 'errorExecuteQuery'), Yii::t('core', 'sqlErrorOccured', array('{errno}'=>$dbException->getNumber(), '{errmsg}'=>$dbException->getText())));
+						$response->addNotification('error', Yii::t('core', 'errorExecuteQuery'), Yii::t('core', 'sqlErrorOccured', [
+							'{errno}'  => $dbException->getNumber(),
+							'{errmsg}' => $dbException->getText()
+						]));
 					}
 
 				}
@@ -335,32 +298,29 @@ class BrowsePage extends CModel
 
 			}
 
-			if($profiling)
-			{
-				$cmd = $this->db->createCommand('select
+			if ($profiling) {
+				$cmd = $this->db->createCommand('SELECT
 						state,
-						SUM(duration) as total,
+						SUM(duration) AS total,
 						COUNT(*) AS count
 					FROM information_schema.profiling
 					GROUP BY state
-					ORDER by total desc');
+					ORDER BY total DESC');
 
 				$cmd->prepare();
-				
+
 				$profileData = $cmd->queryAll();
-				
-				
-				if(count($profileData))
-				{
+
+
+				if (count($profileData)) {
 					$results = '<table class="profiling">';
 
-					foreach($profileData AS $item)
-					{
+					foreach ($profileData AS $item) {
 						$results .= '<tr>';
-						
-						$results .= '<td class="state">' . ucfirst($item['state']) . '</td>';
-						$results .= '<td class="time">' . $item['total'] . '</td>';
-						$results .= '<td class="count">(' . $item['count'] . ')</td>';
+
+						$results .= '<td class="state">'.ucfirst($item['state']).'</td>';
+						$results .= '<td class="time">'.$item['total'].'</td>';
+						$results .= '<td class="count">('.$item['count'].')</td>';
 
 						$results .= '</tr>';
 					}
@@ -370,51 +330,72 @@ class BrowsePage extends CModel
 					$response->addNotification('info', Yii::t('core', 'profilingResultsSortedByExecutionTime'), $results, null);
 				}
 			}
-			else if (isset($total) && isset($time))
-			{
-				$response->addNotification('success',
-						Yii::t('core', 'successExecuteQuery'),
-						Yii::t('core', 'foundRowsQueryTime',
-							array(null,  '{rows}'=>$total, '{time}'=> $time)),
-							$sqlQuery->getQuery());
+			else if (isset($total) && isset($time)) {
+				$response->addNotification('success', Yii::t('core', 'successExecuteQuery'), Yii::t('core', 'foundRowsQueryTime', [
+																											  null,
+																											  '{rows}' => $total,
+																											  '{time}' => $time
+																										  ]), $sqlQuery->getQuery());
 
 			}
 		}
-		
+
 		// Assign local variables to class properties
-		if(isset($pages))
-		{
+		if (isset($pages)) {
 			$this->pagination = $pages;
 		}
-		if(isset($sort))
-		{
+		if (isset($sort)) {
 			$this->sort = $sort;
 		}
-		if(isset($type))
-		{
+		if (isset($type)) {
 			$this->queryType = $type;
 		}
-		if(isset($columns))
-		{
+		if (isset($columns)) {
 			$this->columns = $columns;
-			foreach($this->columns as $column)
-			{
-				if($this->getColumn($column) == null)
-				{
+			foreach ($this->columns as $column) {
+				if ($this->getColumn($column) == null) {
 					$this->singleTableSelect = false;
 					break;
 				}
 			}
-		
+
 		}
-		if(isset($data))
-		{
+		if (isset($data)) {
 			$this->data = $data;
 		}
-		if(isset($response))
-		{
+		if (isset($response)) {
 			$this->response = $response;
 		}
+	}
+
+	private function getDefaultQuery()
+	{
+		return 'SELECT * FROM '.$this->db->quoteTableName($this->table)."\n\t".'WHERE 1';
+	}
+
+	public function getColumn($key)
+	{
+		$tables = $this->getTables();
+		foreach ($tables as $table) {
+			foreach ($table->columns as $index => $column) {
+				if ($key == $index) {
+					return $column;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public function getTables()
+	{
+		$tables = [];
+
+		foreach ($this->tables as $table) {
+			$tables[] = $this->db->getSchema($this->schema)->getTable($table);
+		}
+
+		return $tables;
 	}
 
 	public function hasResultSet()
@@ -432,40 +413,6 @@ class BrowsePage extends CModel
 		return $this->sort;
 	}
 
-	public function getTable()
-	{
-		return $this->db->getSchema($this->schema)->getTable($this->table);
-	}
-	
-	public function getTables()
-	{
-		$tables = array();
-		
-		foreach($this->tables as $table)
-		{
-			$tables[] = $this->db->getSchema($this->schema)->getTable($table);	
-		}
-		
-		return $tables;
-	}
-	
-	public function getColumn($key)
-	{
-		$tables = $this->getTables();
-		foreach($tables as $table)
-		{
-			foreach($table->columns as $index => $column)
-			{
-				if($key == $index)
-				{
-					return $column;
-				}
-			}
-		}
-		
-		return null;
-	}
-
 	public function getQueryType()
 	{
 		return $this->queryType;
@@ -476,79 +423,111 @@ class BrowsePage extends CModel
 		return $this->columns;
 	}
 
-	public function getData()
-	{
-		return $this->data;
-	}
-
 	public function getResponse()
 	{
 		return $this->response;
 	}
-	
+
 	public function getStart()
 	{
 		return $this->start;
 	}
-	
+
 	public function getTotal()
 	{
 		return $this->total;
 	}
-	
+
 	public function getKeyData()
 	{
-		$keyData = array();
-		
+		$keyData = [];
+
 		$i = 0;
-		foreach($this->getData() as $row)
-		{
-			foreach($row as $key => $value)
-			{
-				if($this->getIsUpdatable() 
-					&& (!$this->hasPrimaryKey() || $this->isPrimaryKey($key))
-					&& DataType::getInputType($this->getTable()->columns[$key]->dbType) != "file") 
-				{
+		foreach ($this->getData() as $row) {
+			foreach ($row as $key => $value) {
+				if ($this->getIsUpdatable() && (!$this->hasPrimaryKey() || $this->isPrimaryKey($key)) && DataType::getInputType($this->getTable()->columns[$key]->dbType) != "file") {
 					$keyData[$i][$key] = is_null($value) ? null : $value;
 				}
 			}
 			$i++;
 		}
-		
+
 		return $keyData;
 	}
-	
-	private function isPrimaryKey($key)
+
+	public function getData()
 	{
-		return in_array($key, (array)$this->getTable()->primaryKey);
+		return $this->data;
 	}
-	
+
+	public function getIsUpdatable()
+	{
+		if ($this->isUpdatable === null) {
+			$this->isUpdatable = false;
+
+			$table = $this->loadTable();
+			if (in_array($this->schema, $this->nonEditableSchemas) || ($table == null || !$table->getIsUpdatable())) {
+				$this->isUpdatable = false;
+
+				return $this->isUpdatable;
+			}
+
+			$query             = new SqlQuery($this->lastResultSetQuery);
+			$this->isUpdatable = $query->isUpdatable();
+
+		}
+
+		return $this->isUpdatable;
+
+	}
+
+	/**
+	 * Loads the current table.
+	 *
+	 * @return    Table
+	 */
+	public function loadTable()
+	{
+		if (is_null($this->_table) && !is_null($this->table)) {
+			$pk = [
+				'TABLE_SCHEMA' => $this->schema,
+				'TABLE_NAME'   => $this->table,
+			];
+
+			$this->_table = Table::model()->findByPk($pk);
+
+			if ($this->_table->TABLE_TYPE == "VIEW") {
+				$this->_table = View::model()->findByPk($pk);
+			}
+
+			$this->_table->columns = Column::model()->findAllByAttributes($pk);
+
+			if (is_null($this->_table)) {
+				throw new CHttpException(500, 'The requested table does not exist.');
+			}
+		}
+
+		return $this->_table;
+	}
+
 	public function hasPrimaryKey()
 	{
 		return $this->getTable()->primaryKey !== null;
 	}
-		
-	public function getIsUpdatable()
+
+	public function getTable()
 	{
-		if($this->isUpdatable === null)
-		{
-			$this->isUpdatable = false;	
-
-			$table = $this->loadTable();
-			if(in_array($this->schema, $this->nonEditableSchemas) || ($table == null || !$table->getIsUpdatable()))
-			{
-				$this->isUpdatable = false;
-				return $this->isUpdatable;
-			}
-
-			$query = new SqlQuery($this->lastResultSetQuery);
-			$this->isUpdatable = $query->isUpdatable();
-			
-		}
-		
-		return $this->isUpdatable;
-			
+		return $this->db->getSchema($this->schema)->getTable($this->table);
 	}
+
+	private function isPrimaryKey($key)
+	{
+		return in_array($key, (array)$this->getTable()->primaryKey);
+	}
+
+	/*
+	 * Private functions
+	 */
 
 	public function getExecutedQueries()
 	{
@@ -557,51 +536,12 @@ class BrowsePage extends CModel
 
 	public function getOriginalQueries()
 	{
-		if($this->originalQueries)
+		if ($this->originalQueries) {
 			return implode(";\n\n", $this->originalQueries);
-		else
-			return $this->query;
-	}
-	
-	/*
-	 * Private functions
-	 */
-	private function getDefaultQuery()
-	{
-		return 'SELECT * FROM ' . $this->db->quoteTableName($this->table) .
-			"\n\t" . 'WHERE 1';
-	}
-	
-	/**
-	 * Loads the current table.
-	 *
-	 * @return	Table
-	 */
-	public function loadTable()
-	{
-		if(is_null($this->_table) && !is_null($this->table))
-		{
-			$pk = array(
-				'TABLE_SCHEMA' => $this->schema,
-				'TABLE_NAME' => $this->table,
-			);
-			
-			$this->_table = Table::model()->findByPk($pk);
-			
-			if($this->_table->TABLE_TYPE == "VIEW")
-			{
-				$this->_table = View::model()->findByPk($pk);	
-			}
-			
-			$this->_table->columns = Column::model()->findAllByAttributes($pk);
-
-			if(is_null($this->_table))
-			{
-				throw new CHttpException(500, 'The requested table does not exist.');
-			}
 		}
-		
-		return $this->_table;
+		else {
+			return $this->query;
+		}
 	}
 
 }

@@ -7,7 +7,7 @@
 	<div class="buttonContainer">
 
 		<div class="left">
-			<?php $this->widget('LinkPager', array('pages' => $pages)); ?>
+			<?php $this->widget('LinkPager', ['pages' => $pages]); ?>
 		</div>
 		<div class="right">
 			<a href="javascript:void(0)" onclick="privilegesUsers.addUser()" class="icon button">
@@ -31,49 +31,52 @@
 			<col class="action" />
 		</colgroup>
 		<thead>
-			<tr>
-				<th><input type="checkbox" /></th>
-				<th><?php echo $sort->link('User'); ?></th>
-				<th><?php echo $sort->link('Host'); ?></th>
-				<th><?php echo Yii::t('core', 'password'); ?></th>
-				<th colspan="4"><?php echo Yii::t('core', 'privileges'); ?></th>
-			</tr>
+		<tr>
+			<th><input type="checkbox" /></th>
+			<th><?php echo $sort->link('User'); ?></th>
+			<th><?php echo $sort->link('Host'); ?></th>
+			<th><?php echo Yii::t('core', 'password'); ?></th>
+			<th colspan="4"><?php echo Yii::t('core', 'privileges'); ?></th>
+		</tr>
 		</thead>
 		<tbody>
-			<?php foreach($users as $user) { ?>
-				<tr id="users_<?php echo $user->getDomId(); ?>">
-					<td>
-						<input type="checkbox" name="users[]" value="<?php echo $user->getId(); ?>" />
-					</td>
-					<td>
-						<?php echo ($user->User ? $user->User : '%'); ?>
-					</td>
-					<td>
-						<?php echo $user->Host; ?>
-					</td>
-					<td>
-						<?php echo Yii::t('core', ($user->Password ? 'yes' : 'no')) ?>
-					</td>
-					<td>
-						<?php echo implode(', ', $user->getGlobalPrivileges()); ?>
-					</td>
-					<td>
-						<?php echo Html::ajaxLink('privileges/users/' . $user->getId() . '/schemata', array('class' => 'icon')); ?>
-							<?php echo Html::icon('database', 16, false, 'core.schemaSpecificPrivileges'); ?>
-						</a>
-					</td>
-					<td>
-						<a href="javascript:void(0)" onclick="privilegesUsers.editUser('<?php echo $user->getId(); ?>', '<?php echo $user->getDomId(); ?>')" class="icon">
-							<?php echo Html::icon('edit', 16, false, 'core.edit'); ?>
-						</a>
-					</td>
-					<td>
-						<a href="javascript:void(0)" onclick="privilegesUsers.dropUser('<?php echo $user->getId(); ?>')" class="icon">
-							<?php echo Html::icon('delete', 16, false, 'core.drop'); ?>
-						</a>
-					</td>
-				</tr>
-			<?php } ?>
+		<?php foreach ($users as $user) { ?>
+			<tr id="users_<?php echo $user->getDomId(); ?>">
+				<td>
+					<input type="checkbox" name="users[]" value="<?php echo $user->getId(); ?>" />
+				</td>
+				<td>
+					<?php echo($user->User ? $user->User : '%'); ?>
+				</td>
+				<td>
+					<?php echo $user->Host; ?>
+				</td>
+				<td>
+					<?php echo Yii::t('core', ($user->Password ? 'yes' : 'no')) ?>
+				</td>
+				<td>
+					<?php echo implode(', ', $user->getGlobalPrivileges()); ?>
+				</td>
+				<td>
+					<?php echo Html::ajaxLink('privileges/users/'.$user->getId().'/schemata', ['class' => 'icon']); ?>
+					<?php echo Html::icon('database', 16, false, 'core.schemaSpecificPrivileges'); ?>
+					</a>
+				</td>
+				<td>
+					<a href="javascript:void(0)"
+					   onclick="privilegesUsers.editUser('<?php echo $user->getId(); ?>', '<?php echo $user->getDomId(); ?>')"
+					   class="icon">
+						<?php echo Html::icon('edit', 16, false, 'core.edit'); ?>
+					</a>
+				</td>
+				<td>
+					<a href="javascript:void(0)" onclick="privilegesUsers.dropUser('<?php echo $user->getId(); ?>')"
+					   class="icon">
+						<?php echo Html::icon('delete', 16, false, 'core.drop'); ?>
+					</a>
+				</td>
+			</tr>
+		<?php } ?>
 		</tbody>
 	</table>
 
@@ -98,14 +101,15 @@
 </div>
 
 <script type="text/javascript">
-setTimeout(function() {
-	privilegesUsers.setup();
-}, 500);
-breadCrumb.set([
+	setTimeout(function ()
 	{
-		icon: 'privileges',
-		href: 'javascript:chive.goto(\'privileges/users\')',
-		text: '<?php echo Yii::t('core', 'privileges'); ?>'
-	}
-]);
+		privilegesUsers.setup();
+	}, 500);
+	breadCrumb.set([
+		{
+			icon: 'privileges',
+			href: 'javascript:chive.goto(\'privileges/users\')',
+			text: '<?php echo Yii::t('core', 'privileges'); ?>'
+		}
+	]);
 </script>

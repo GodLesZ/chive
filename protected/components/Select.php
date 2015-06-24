@@ -25,20 +25,21 @@ class Select extends CWidget
 {
 	public $htmlOptions;
 
-	public $items=array();
+	public $items = [];
 
-	public function run() {
+	public function run()
+	{
 
-		$items = array();
+		$items = [];
 
-		foreach($this->items AS $item) {
+		foreach ($this->items AS $item) {
 			$items[] = $item;
 		}
 
-		$this->render('select', array(
-			'items'=>$items,
-			'htmlOptions'=>$this->htmlOptions,
-		));
+		$this->render('select', [
+			'items'       => $items,
+			'htmlOptions' => $this->htmlOptions,
+		]);
 	}
 
 }

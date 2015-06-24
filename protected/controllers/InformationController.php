@@ -26,8 +26,7 @@ class InformationController extends Controller
 
 	public function __construct($id, $module = null)
 	{
-		if(Yii::app()->request->isAjaxRequest)
-		{
+		if (Yii::app()->request->isAjaxRequest) {
 			$this->layout = false;
 		}
 
@@ -40,12 +39,12 @@ class InformationController extends Controller
 	public function actionProcesses()
 	{
 		Yii::app()->getDb()->setActive(true);
-		$cmd = Yii::app()->getDb()->createCommand('SHOW PROCESSLIST');
+		$cmd       = Yii::app()->getDb()->createCommand('SHOW PROCESSLIST');
 		$processes = $cmd->queryAll();
 
-		$this->render('processes', array(
+		$this->render('processes', [
 			'processes' => $processes,
-		));
+		]);
 	}
 
 	/**
@@ -55,27 +54,24 @@ class InformationController extends Controller
 	{
 		$ids = CJSON::decode(Yii::app()->getRequest()->getParam('ids'));
 
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
 
-		foreach($ids AS $id)
-		{
-			$sql = 'KILL ' . $id;
+		foreach ($ids AS $id) {
+			$sql = 'KILL '.$id;
 
-			try
-			{
+			try {
 				Yii::app()->getDb()->setActive(true);
 				$cmd = Yii::app()->getDb()->createCommand($sql);
 
 				$cmd->prepare();
 				$cmd->execute();
 
-				$response->addNotification('success', Yii::t('core', 'successKillProcess', array('{id}' => $id)), null, $sql);
+				$response->addNotification('success', Yii::t('core', 'successKillProcess', ['{id}' => $id]), null, $sql);
 			}
-			catch(CDbException $ex)
-			{
+			catch (CDbException $ex) {
 				$ex = new DbException($cmd);
-				$response->addNotification('error', Yii::t('core', 'errorKillProcess', array('{id}' => $id)), $ex->getText(), $sql);
+				$response->addNotification('error', Yii::t('core', 'errorKillProcess', ['{id}' => $id]), $ex->getText(), $sql);
 			}
 
 		}
@@ -90,9 +86,9 @@ class InformationController extends Controller
 	{
 		$engines = StorageEngine::model()->findAll();
 
-		$this->render('storageEngines', array(
+		$this->render('storageEngines', [
 			'engines' => $engines,
-		));
+		]);
 	}
 
 	/**
@@ -100,27 +96,25 @@ class InformationController extends Controller
 	 */
 	public function actionCharacterSets()
 	{
-		$cmd = Yii::app()->getDb()->createCommand('SHOW CHARACTER SET');
+		$cmd           = Yii::app()->getDb()->createCommand('SHOW CHARACTER SET');
 		$charactersets = $cmd->queryAll();
 
-		$charsets = array();
-		foreach($charactersets AS $set)
-		{
+		$charsets = [];
+		foreach ($charactersets AS $set) {
 			$charsets[$set['Charset']] = $set;
 		}
 
 		// Fetch collations into charsets
-		$cmd = Yii::app()->getDb()->createCommand('SHOW COLLATION');
+		$cmd        = Yii::app()->getDb()->createCommand('SHOW COLLATION');
 		$collations = $cmd->queryAll();
 
-		foreach($collations AS $collation)
-		{
+		foreach ($collations AS $collation) {
 			$charsets[$collation['Charset']]['collations'][] = $collation;
 		}
 
-		$this->render('characterSets', array(
+		$this->render('characterSets', [
 			'charsets' => $charsets,
-		));
+		]);
 	}
 
 	/**
@@ -128,19 +122,18 @@ class InformationController extends Controller
 	 */
 	public function actionVariables()
 	{
-		$cmd = Yii::app()->getDb()->createCommand('SHOW GLOBAL VARIABLES');
+		$cmd  = Yii::app()->getDb()->createCommand('SHOW GLOBAL VARIABLES');
 		$data = $cmd->queryAll();
 
-		$variables = array();
-		foreach($data AS $entry)
-		{
-			$prefix = substr($entry['Variable_name'], 0, strpos($entry['Variable_name'], '_'));
+		$variables = [];
+		foreach ($data AS $entry) {
+			$prefix                                      = substr($entry['Variable_name'], 0, strpos($entry['Variable_name'], '_'));
 			$variables[$prefix][$entry['Variable_name']] = $entry['Value'];
 		}
 
-		$this->render('variables', array(
+		$this->render('variables', [
 			'variables' => $variables,
-		));
+		]);
 	}
 
 	/**
@@ -148,19 +141,18 @@ class InformationController extends Controller
 	 */
 	public function actionStatus()
 	{
-		$cmd = Yii::app()->getDb()->createCommand('SHOW GLOBAL STATUS');
+		$cmd  = Yii::app()->getDb()->createCommand('SHOW GLOBAL STATUS');
 		$data = $cmd->queryAll();
 
-		$status = array();
-		foreach($data AS $entry)
-		{
-			$prefix = substr($entry['Variable_name'], 0, strpos($entry['Variable_name'], '_'));
+		$status = [];
+		foreach ($data AS $entry) {
+			$prefix                                   = substr($entry['Variable_name'], 0, strpos($entry['Variable_name'], '_'));
 			$status[$prefix][$entry['Variable_name']] = $entry['Value'];
 		}
 
-		$this->render('status', array(
+		$this->render('status', [
 			'status' => $status,
-		));
+		]);
 	}
 
 	/**
@@ -168,8 +160,8 @@ class InformationController extends Controller
 	 */
 	public function actionAbout()
 	{
-		$this->render('about', array(
-		));
+		$this->render('about', [
+		]);
 	}
 
 }

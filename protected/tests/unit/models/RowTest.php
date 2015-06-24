@@ -25,18 +25,6 @@ class RowTest extends ChiveTestCase
 {
 
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-
-		$this->executeSqlFile('models/RowTest.sql');
-		
-		Row::$db = $this->createDbConnection('rowtest');
-		Row::$schema = "rowtest";
-	}
-
-	/**
 	 * tests some config methods
 	 */
 	public function testConfig()
@@ -52,8 +40,6 @@ class RowTest extends ChiveTestCase
 		$this->assertType('string', Row::model()->primaryKey());
 	}
 
-
-
 	/**
 	 * tries to read the row values
 	 */
@@ -61,29 +47,29 @@ class RowTest extends ChiveTestCase
 	{
 
 		Row::$table = "data";
-		$rows = Row::model()->findAllByAttributes(array('test1'=>1));
+		$rows       = Row::model()->findAllByAttributes(['test1' => 1]);
 
 		$row = $rows[0];
 
-		$this->assertType('numeric',$row->getAttribute('test1'));
-		$this->assertType('numeric',$row->getAttribute('test2'));
-		$this->assertType('string',$row->getAttribute('test3'));
-		$this->assertType('numeric',$row->getAttribute('test4'));
-		$this->assertType('string',$row->getAttribute('test5'));
-		$this->assertType('string',$row->getAttribute('test6'));
-		$this->assertType('numeric',$row->getAttribute('test7'));
-		$this->assertType('string',$row->getAttribute('test8'));
-		$this->assertType('string',$row->getAttribute('test9'));
+		$this->assertType('numeric', $row->getAttribute('test1'));
+		$this->assertType('numeric', $row->getAttribute('test2'));
+		$this->assertType('string', $row->getAttribute('test3'));
+		$this->assertType('numeric', $row->getAttribute('test4'));
+		$this->assertType('string', $row->getAttribute('test5'));
+		$this->assertType('string', $row->getAttribute('test6'));
+		$this->assertType('numeric', $row->getAttribute('test7'));
+		$this->assertType('string', $row->getAttribute('test8'));
+		$this->assertType('string', $row->getAttribute('test9'));
 
-		$this->assertEquals('1',$row->getAttribute('test1'));
-		$this->assertEquals('43534534',$row->getAttribute('test2'));
-		$this->assertEquals('Test',$row->getAttribute('test3'));
-		$this->assertEquals('332.43',$row->getAttribute('test4'));
-		$this->assertEquals('2009-11-15 00:00:00',$row->getAttribute('test5'));
-		$this->assertEquals('a',$row->getAttribute('test6'));
-		$this->assertEquals('1',$row->getAttribute('test7'));
-		$this->assertContains('Sed ut perspiciatis,',$row->getAttribute('test8'));
-		$this->assertContains('<ingredient amount="1" unit=',$row->getAttribute('test9'));
+		$this->assertEquals('1', $row->getAttribute('test1'));
+		$this->assertEquals('43534534', $row->getAttribute('test2'));
+		$this->assertEquals('Test', $row->getAttribute('test3'));
+		$this->assertEquals('332.43', $row->getAttribute('test4'));
+		$this->assertEquals('2009-11-15 00:00:00', $row->getAttribute('test5'));
+		$this->assertEquals('a', $row->getAttribute('test6'));
+		$this->assertEquals('1', $row->getAttribute('test7'));
+		$this->assertContains('Sed ut perspiciatis,', $row->getAttribute('test8'));
+		$this->assertContains('<ingredient amount="1" unit=', $row->getAttribute('test9'));
 
 	}
 
@@ -95,37 +81,37 @@ class RowTest extends ChiveTestCase
 
 		Row::$table = "data";
 
-		$row = Row::model()->findByAttributes(array('test1'=>1));
+		$row = Row::model()->findByAttributes(['test1' => 1]);
 
 		$row->setAttribute('test1', '2');
 		$row->setAttribute('test2', '345345');
-		$row->setAttribute('test3','testtesttesttest');
+		$row->setAttribute('test3', 'testtesttesttest');
 		$row->setAttribute('test4', '433.43');
-		$row->setAttribute('test5','2009-06-11');
-		$row->setAttribute('test6','b');
-		$row->setAttribute('test7','3');
-		$row->setAttribute('test8','neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.');
-		$row->setAttribute('test9','{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}');
-        $row->setFunction('test3',4);
- 
-		
-		$row->save();
-		
-		$test = Row::model()->findByAttributes(array('test1'=>2));
-			
-		$this->assertEquals('2',$row->getAttribute('test1'));
-		$this->assertEquals('345345',$row->getAttribute('test2'));
-		$this->assertEquals('testtesttesttest',$row->getAttribute('test3'));
-		$this->assertEquals('433.43',$row->getAttribute('test4'));
-		$this->assertEquals('2009-06-11',$row->getAttribute('test5'));
-		$this->assertEquals('b',$row->getAttribute('test6'));
-		$this->assertEquals('3',$row->getAttribute('test7'));
-		$this->assertContains('neque porro quisquam est, qu',$row->getAttribute('test8'));
-		$this->assertContains('{"firstName": "John", "l',$row->getAttribute('test9'));
+		$row->setAttribute('test5', '2009-06-11');
+		$row->setAttribute('test6', 'b');
+		$row->setAttribute('test7', '3');
+		$row->setAttribute('test8', 'neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.');
+		$row->setAttribute('test9', '{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}');
+		$row->setFunction('test3', 4);
 
-		$this->assertEquals(4,$row->getFunction('test3'));
-		
-		$this->assertType('array',$row->getIdentifier());
+
+		$row->save();
+
+		$test = Row::model()->findByAttributes(['test1' => 2]);
+
+		$this->assertEquals('2', $row->getAttribute('test1'));
+		$this->assertEquals('345345', $row->getAttribute('test2'));
+		$this->assertEquals('testtesttesttest', $row->getAttribute('test3'));
+		$this->assertEquals('433.43', $row->getAttribute('test4'));
+		$this->assertEquals('2009-06-11', $row->getAttribute('test5'));
+		$this->assertEquals('b', $row->getAttribute('test6'));
+		$this->assertEquals('3', $row->getAttribute('test7'));
+		$this->assertContains('neque porro quisquam est, qu', $row->getAttribute('test8'));
+		$this->assertContains('{"firstName": "John", "l', $row->getAttribute('test9'));
+
+		$this->assertEquals(4, $row->getFunction('test3'));
+
+		$this->assertType('array', $row->getIdentifier());
 		/*
 		 * @todo(dmoesslang): cant select data2
 		 *
@@ -209,21 +195,20 @@ class RowTest extends ChiveTestCase
 
 	}
 
-
 	public function testDelete()
 	{
 
 		Row::$table = "data";
 
-		$row = Row::model()->findByAttributes(array('test1'=>1));
+		$row = Row::model()->findByAttributes(['test1' => 1]);
 
 		$row->delete();
 
-		$this->assertNull(Row::model()->findByAttributes(array('test1'=>1)));
+		$this->assertNull(Row::model()->findByAttributes(['test1' => 1]));
 
-			
+
 		/*	@todo(dmoesslang): cant select data2
-		 	
+
 		Row::$table = "data2";
 
 		$row = Row::model()->findAllByAttributes(array('test1'=>1));
@@ -255,31 +240,42 @@ class RowTest extends ChiveTestCase
 
 		$row->setAttribute('test1', '2');
 		$row->setAttribute('test2', '345345');
-		$row->setAttribute('test3','testtesttesttest');
+		$row->setAttribute('test3', 'testtesttesttest');
 		$row->setAttribute('test4', '433.43');
-		$row->setAttribute('test5','2009-06-11');
-		$row->setAttribute('test6','b');
-		$row->setAttribute('test7','3');
-		$row->setAttribute('test8','neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.');
-		$row->setAttribute('test9','{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}');
+		$row->setAttribute('test5', '2009-06-11');
+		$row->setAttribute('test6', 'b');
+		$row->setAttribute('test7', '3');
+		$row->setAttribute('test8', 'neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.');
+		$row->setAttribute('test9', '{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}');
 
 		$row->save();
 
-		$urow = Row::model()->findByAttributes(array('test1'=>2));
+		$urow = Row::model()->findByAttributes(['test1' => 2]);
 
-		$this->assertEquals('2',$row->getAttribute('test1'));
-		$this->assertEquals('345345',$row->getAttribute('test2'));
-		$this->assertEquals('testtesttesttest',$row->getAttribute('test3'));
-		$this->assertEquals('433.43',$row->getAttribute('test4'));
-		$this->assertEquals('2009-06-11',$row->getAttribute('test5'));
-		$this->assertEquals('b',$row->getAttribute('test6'));
-		$this->assertEquals('3',$row->getAttribute('test7'));
-		$this->assertEquals('neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.',$row->getAttribute('test8'));
-		$this->assertEquals('{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}',$row->getAttribute('test9'));
-			
+		$this->assertEquals('2', $row->getAttribute('test1'));
+		$this->assertEquals('345345', $row->getAttribute('test2'));
+		$this->assertEquals('testtesttesttest', $row->getAttribute('test3'));
+		$this->assertEquals('433.43', $row->getAttribute('test4'));
+		$this->assertEquals('2009-06-11', $row->getAttribute('test5'));
+		$this->assertEquals('b', $row->getAttribute('test6'));
+		$this->assertEquals('3', $row->getAttribute('test7'));
+		$this->assertEquals('neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.', $row->getAttribute('test8'));
+		$this->assertEquals('{"firstName": "John", "lastName": "Smith", "address": {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021}, "phoneNumbers": ["212 555-1234", "646 555-4567"]}', $row->getAttribute('test9'));
+
 
 	}
 
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+
+		$this->executeSqlFile('models/RowTest.sql');
+
+		Row::$db     = $this->createDbConnection('rowtest');
+		Row::$schema = "rowtest";
+	}
 
 
 }

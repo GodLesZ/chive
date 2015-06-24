@@ -18,36 +18,35 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@media screen, projection
-{
-  
-  img.icon.disabled {
-  	opacity: 0.2;
-  }
-  
-  a.icon {
-  	text-decoration: none !important;
-	overflow: hidden;
-  }
-  
-  a.icon span {
-  	text-decoration: underline;
-  }
-  
-  a.icon:hover span {
-  	text-decoration: none;
-  }
-  
-  span.icon img.icon,
-  a.icon img.icon {
-  	border: none;
-	position: relative;
-	top: 3px;
-	margin-right: 2px;
-  }
-  
-  img.icon_arrow_move {
-  	cursor: move;
-  }
-  
+@media screen, projection {
+
+    img.icon.disabled {
+        opacity : 0.2;
+    }
+
+    a.icon {
+        text-decoration : none !important;
+        overflow        : hidden;
+    }
+
+    a.icon span {
+        text-decoration : underline;
+    }
+
+    a.icon:hover span {
+        text-decoration : none;
+    }
+
+    span.icon img.icon,
+    a.icon img.icon {
+        border       : none;
+        position     : relative;
+        top          : 3px;
+        margin-right : 2px;
+    }
+
+    img.icon_arrow_move {
+        cursor : move;
+    }
+
 }

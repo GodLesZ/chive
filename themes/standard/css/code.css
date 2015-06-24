@@ -18,14 +18,12 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@media screen, projection
-{
-  
-  code.literal
-  {
-  	color: #026789;
-  	font-family: monospace, fixed;
-	font-weight: bold;
-  }
-  
+@media screen, projection {
+
+    code.literal {
+        color       : #026789;
+        font-family : monospace, fixed;
+        font-weight : bold;
+    }
+
 }

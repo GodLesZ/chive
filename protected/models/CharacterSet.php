@@ -24,7 +24,7 @@
 class CharacterSet extends CActiveRecord
 {
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see        CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -32,7 +32,7 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see        CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -40,7 +40,7 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see        CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -48,13 +48,17 @@ class CharacterSet extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::relations()
+	 * @see        CActiveRecord::relations()
 	 */
 	public function relations()
 	{
-		return array(
-			'collations' => array(self::HAS_MANY, 'Collation', 'CHARACTER_SET_NAME'),
-		);
+		return [
+			'collations' => [
+				self::HAS_MANY,
+				'Collation',
+				'CHARACTER_SET_NAME'
+			],
+		];
 	}
-	
+
 }

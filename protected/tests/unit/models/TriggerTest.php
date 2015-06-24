@@ -24,29 +24,18 @@
 class TriggerTest extends ChiveTestCase
 {
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/TriggerTest.sql');
-		
-		Trigger::$db = $this->createDbConnection('triggertest');
-	}
-
-
-	/**
 	 * tries to load a trigger and check the attributes
 	 */
 	public function testLoad()
 	{
-		$triggerObj = Trigger::model()->findByPk(array(
-			'TRIGGER_SCHEMA' => 'triggertest',
-			'TRIGGER_NAME' => 'trigger1'
-		));
+		$triggerObj = Trigger::model()->findByPk([
+													 'TRIGGER_SCHEMA' => 'triggertest',
+													 'TRIGGER_NAME'   => 'trigger1'
+												 ]);
 
 		$this->assertType('trigger', $triggerObj);
-		$this->assertEquals('triggertest',$triggerObj->TRIGGER_SCHEMA);
-		$this->assertEquals('trigger1',$triggerObj->TRIGGER_NAME);
+		$this->assertEquals('triggertest', $triggerObj->TRIGGER_SCHEMA);
+		$this->assertEquals('trigger1', $triggerObj->TRIGGER_NAME);
 
 	}
 
@@ -70,10 +59,10 @@ class TriggerTest extends ChiveTestCase
 	{
 
 
-		$triggerObj = Trigger::model()->findByPk(array(
-			'TRIGGER_SCHEMA' => 'triggertest',
-			'TRIGGER_NAME' => 'trigger1'
-		));
+		$triggerObj = Trigger::model()->findByPk([
+													 'TRIGGER_SCHEMA' => 'triggertest',
+													 'TRIGGER_NAME'   => 'trigger1'
+												 ]);
 
 		$createTrigger = $triggerObj->getCreateTrigger();
 
@@ -86,12 +75,22 @@ class TriggerTest extends ChiveTestCase
 		$cmd = Trigger::$db->createCommand($createTrigger);
 		$this->assertEquals(0, $cmd->execute());
 
-		$triggerObj = Trigger::model()->findByPk(array(
-			'TRIGGER_SCHEMA' => 'triggertest',
-			'TRIGGER_NAME' => 'trigger1'
-		));
+		$triggerObj = Trigger::model()->findByPk([
+													 'TRIGGER_SCHEMA' => 'triggertest',
+													 'TRIGGER_NAME'   => 'trigger1'
+												 ]);
 
 		$this->assertType('Trigger', $triggerObj);
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/TriggerTest.sql');
+
+		Trigger::$db = $this->createDbConnection('triggertest');
 	}
 
 }

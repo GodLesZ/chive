@@ -23,39 +23,28 @@
 
 class RoutineTest extends ChiveTestCase
 {
-	
+
 	/**
-	 * set up the database with function and procedure
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/RoutineTest.sql');
-		
-		Routine::$db = $this->createDbConnection('routinetest');
-	}
-	
-	/**
-	 * tests some config 
+	 * tests some config
 	 */
 	public function testConfig()
 	{
 		$this->assertType('Routine', Routine::model());
-		
+
 		$routine = new Routine();
 		$this->assertType('array', $routine->primaryKey());
 		$this->assertType('string', $routine->tableName());
 	}
-
 
 	/**
 	 * tries to delete a procedure
 	 */
 	public function testDelete()
 	{
-		$routineObj = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_procedure',
-		));
+		$routineObj = Routine::model()->findByPk([
+													 'ROUTINE_SCHEMA' => 'routinetest',
+													 'ROUTINE_NAME'   => 'test_procedure',
+												 ]);
 
 		$this->assertType('string', $routineObj->delete());
 	}
@@ -65,24 +54,24 @@ class RoutineTest extends ChiveTestCase
 	 */
 	public function testGetRoutine()
 	{
-		$routineObj = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_procedure',
-		));
+		$routineObj = Routine::model()->findByPk([
+													 'ROUTINE_SCHEMA' => 'routinetest',
+													 'ROUTINE_NAME'   => 'test_procedure',
+												 ]);
 
 		$createRoutine = $routineObj->getCreateRoutine();
-		
+
 		$this->assertType('string', $createRoutine);
 		$this->assertType('string', $routineObj->delete());
-		
+
 		$cmd = Routine::$db->createCommand($createRoutine);
 		$this->assertEquals(0, $cmd->execute());
-		
-		$routineObj = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_procedure',
-		));
-		
+
+		$routineObj = Routine::model()->findByPk([
+													 'ROUTINE_SCHEMA' => 'routinetest',
+													 'ROUTINE_NAME'   => 'test_procedure',
+												 ]);
+
 		$this->assertType('Routine', $routineObj);
 	}
 
@@ -91,10 +80,10 @@ class RoutineTest extends ChiveTestCase
 	 */
 	public function testDeleteFunction()
 	{
-		$function = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_function',
-		));
+		$function = Routine::model()->findByPk([
+												   'ROUTINE_SCHEMA' => 'routinetest',
+												   'ROUTINE_NAME'   => 'test_function',
+											   ]);
 
 		$this->assertType('string', $function->delete());
 	}
@@ -104,27 +93,37 @@ class RoutineTest extends ChiveTestCase
 	 */
 	public function testGetRoutineFunction()
 	{
-		$function = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_function',
-		));
+		$function = Routine::model()->findByPk([
+												   'ROUTINE_SCHEMA' => 'routinetest',
+												   'ROUTINE_NAME'   => 'test_function',
+											   ]);
 
 		$createRoutine = $function->getCreateRoutine();
-		
+
 		$this->assertType('string', $createRoutine);
-		
+
 		$this->assertType('string', $createRoutine);
 		$this->assertType('string', $function->delete());
-		
+
 		$cmd = Routine::$db->createCommand($createRoutine);
 		$this->assertEquals(0, $cmd->execute());
-		
-		$function = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => 'routinetest',
-			'ROUTINE_NAME' => 'test_function',
-		));
-		
+
+		$function = Routine::model()->findByPk([
+												   'ROUTINE_SCHEMA' => 'routinetest',
+												   'ROUTINE_NAME'   => 'test_function',
+											   ]);
+
 		$this->assertType('Routine', $function);
+	}
+
+	/**
+	 * set up the database with function and procedure
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/RoutineTest.sql');
+
+		Routine::$db = $this->createDbConnection('routinetest');
 	}
 
 }

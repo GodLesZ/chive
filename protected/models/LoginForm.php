@@ -32,59 +32,66 @@ class LoginForm extends CFormModel
 	public $redirectUrl;
 
 	/**
-	 * @see		CFormModel::rules();
+	 * @see        CFormModel::rules();
 	 */
 	public function rules()
 	{
-		return array(
+		return [
 			// username and password are required
-			array('username, host', 'required'),
+			[
+				'username, host',
+				'required'
+			],
 			// port number must be empty or a 16 bit unsigned integer
-			array('port', 'numerical',
-				'allowEmpty' => true,
+			[
+				'port',
+				'numerical',
+				'allowEmpty'  => true,
 				'integerOnly' => true,
-				'min' => 1,
-				'max' => 65535
-			),
+				'min'         => 1,
+				'max'         => 65535
+			],
 			// set default MySQL port if nothing specified
-			array('port', 'default',
+			[
+				'port',
+				'default',
 				'setOnEmpty' => true,
-				'value' => 3306
-			),
+				'value'      => 3306
+			],
 			// password needs to be authenticated
-			array('password', 'authenticate'),
-		);
+			[
+				'password',
+				'authenticate'
+			],
+		];
 	}
 
 	/**
-	 * @see		CFormModel::attributeLabels()
+	 * @see        CFormModel::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
-		return array(
-			'host'=>Yii::t('core','host'),
-			'port'=>Yii::t('core','port'),
-			'username'=>Yii::t('core','username'),
-			'password'=>Yii::t('core','password'),
-		);
+		return [
+			'host'     => Yii::t('core', 'host'),
+			'port'     => Yii::t('core', 'port'),
+			'username' => Yii::t('core', 'username'),
+			'password' => Yii::t('core', 'password'),
+		];
 	}
 
 	/**
 	 * Authenticates the password.
 	 * This is the 'authenticate' validator as declared in rules().
 	 */
-	public function authenticate($attribute,$params)
+	public function authenticate($attribute, $params)
 	{
-		if(!$this->hasErrors())
-		{
-			$identity = new UserIdentity($this->username,$this->password, $this->host, $this->port);
+		if (!$this->hasErrors()) {
+			$identity = new UserIdentity($this->username, $this->password, $this->host, $this->port);
 
-			if($identity->authenticate())
-			{
+			if ($identity->authenticate()) {
 				Yii::app()->user->login($identity);
 			}
-			else
-			{
+			else {
 				$this->addError(null, $identity->errorMessage);
 			}
 		}

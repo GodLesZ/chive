@@ -27,29 +27,27 @@ class IndexController extends Controller
 	/**
 	 * @var string specifies the default action to be 'list'.
 	 */
-	public $defaultAction='list';
-
-	private $_db;
-
+	public $defaultAction = 'list';
 	public $table;
 	public $schema;
 	public $index;
-
 	/**
 	 * @var Default layout for this controller
 	 */
 	public $layout = 'schema';
+	private $_db;
 
-	public function __construct($id, $module=null)
+	public function __construct($id, $module = null)
 	{
 		$request = Yii::app()->getRequest();
 
-		if($request->isAjaxRequest)
+		if ($request->isAjaxRequest) {
 			$this->layout = false;
+		}
 
-		$this->table = $request->getParam('table');
+		$this->table  = $request->getParam('table');
 		$this->schema = $request->getParam('schema');
-		$this->index = $request->getParam('index');
+		$this->index  = $request->getParam('index');
 
 		parent::__construct($id, $module);
 		$this->connectDb($this->schema);
@@ -57,110 +55,117 @@ class IndexController extends Controller
 
 	public function actionCreate()
 	{
-		$index = new Index();
+		$index             = new Index();
 		$index->TABLE_NAME = $this->table;
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => $this->schema,
-			'TABLE_NAME' => $this->table,
-		));
+		$table             = Table::model()->findByPk([
+														  'TABLE_SCHEMA' => $this->schema,
+														  'TABLE_NAME'   => $this->table,
+													  ]);
 
-		if(isset($_POST['Index']))
-		{
+		if (isset($_POST['Index'])) {
 			$index->attributes = $_POST['Index'];
-			$index->columns = $this->getColumnsFromRequest();
+			$index->columns    = $this->getColumnsFromRequest();
 
-			if($sql = $index->save())
-			{
+			if ($sql = $index->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successCreateIndex', array('{index}' => $index->INDEX_NAME)),
-					null,
-					$sql);
+				$response->addNotification('success', Yii::t('core', 'successCreateIndex', ['{index}' => $index->INDEX_NAME]), null, $sql);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
 		}
 
 		$indexTypes = $table->getSupportedIndexTypes();
-		if($table->getHasPrimaryKey())
-		{
+		if ($table->getHasPrimaryKey()) {
 			unset($indexTypes['PRIMARY']);
 		}
 
-		$this->render('form', array(
-			'index' => $index,
-			'indexTypes' => $indexTypes,
+		$this->render('form', [
+			'index'         => $index,
+			'indexTypes'    => $indexTypes,
 			'addColumnData' => $this->getColumnSelect($table),
-		));
+		]);
+	}
+
+	private function getColumnsFromRequest()
+	{
+		$columns = [];
+		foreach ((array)Yii::app()->request->getPost('columns') AS $column) {
+			$col              = new IndexColumn();
+			$col->COLUMN_NAME = $column;
+			if ((int)@$_POST['keyLengths'][$column] > 0) {
+				$col->SUB_PART = (int)$_POST['keyLengths'][$column];
+			}
+			$columns[] = $col;
+		}
+
+		return $columns;
+	}
+
+	private function getColumnSelect(Table $table)
+	{
+		$data = [
+			'' => Yii::t('core', 'selectColumnToAdd').':',
+		];
+		foreach ($table->columns AS $column) {
+			$data[$column->COLUMN_NAME] = $column->COLUMN_NAME;
+		}
+
+		return $data;
 	}
 
 	public function actionCreateSimple()
 	{
 		// Get post vars
 		$indexName = Yii::app()->request->getPost('index');
-		$type = Yii::app()->request->getPost('type');
-		$columns = (array)Yii::app()->request->getPost('columns');
+		$type      = Yii::app()->request->getPost('type');
+		$columns   = (array)Yii::app()->request->getPost('columns');
 
 		$response = new AjaxResponse();
-		try
-		{
-			$index = new Index();
+		try {
+			$index                  = new Index();
 			$index->throwExceptions = true;
-			$index->TABLE_SCHEMA = $this->schema;
-			$index->TABLE_NAME = $this->table;
-			$index->INDEX_NAME = $indexName;
+			$index->TABLE_SCHEMA    = $this->schema;
+			$index->TABLE_NAME      = $this->table;
+			$index->INDEX_NAME      = $indexName;
 			$index->setType($type);
 			$index->columns = $this->getColumnsFromRequest();
-			$sql = $index->save();
-			$response->addNotification('success',
-				Yii::t('core', 'successCreateIndex', array('{index}' => $index->INDEX_NAME)),
-				null,
-				$sql);
+			$sql            = $index->save();
+			$response->addNotification('success', Yii::t('core', 'successCreateIndex', ['{index}' => $index->INDEX_NAME]), null, $sql);
 			$response->refresh = true;
 		}
-		catch(DbException $ex)
-		{
-			$response->addNotification('error',
-				Yii::t('core', 'errorCreateIndex', array('{index}' => $indexName)),
-				$ex->getText(),
-				$ex->getSql());
+		catch (DbException $ex) {
+			$response->addNotification('error', Yii::t('core', 'errorCreateIndex', ['{index}' => $indexName]), $ex->getText(), $ex->getSql());
 		}
 		$this->sendJSON($response);
 	}
 
 	public function actionUpdate()
 	{
-		$index = Index::model()->findByAttributes(array(
-			'TABLE_SCHEMA' => $this->schema,
-			'TABLE_NAME' => $this->table,
-			'INDEX_NAME' => $this->index,
-		));
-		
-		if($index == null)
-		{
-			$index = new Index();
+		$index = Index::model()->findByAttributes([
+													  'TABLE_SCHEMA' => $this->schema,
+													  'TABLE_NAME'   => $this->table,
+													  'INDEX_NAME'   => $this->index,
+												  ]);
+
+		if ($index == null) {
+			$index               = new Index();
 			$index->TABLE_SCHEMA = $this->schema;
-			$index->TABLE_NAME = $this->table;
-			$index->INDEX_NAME = $this->index;
+			$index->TABLE_NAME   = $this->table;
+			$index->INDEX_NAME   = $this->index;
 		}
-		
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => $this->schema,
-			'TABLE_NAME' => $this->table,
-		));
 
-		if(isset($_POST['Index']))
-		{
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => $this->schema,
+											  'TABLE_NAME'   => $this->table,
+										  ]);
+
+		if (isset($_POST['Index'])) {
 			$index->attributes = $_POST['Index'];
-			$index->columns = $this->getColumnsFromRequest();
+			$index->columns    = $this->getColumnsFromRequest();
 
-			if($sql = $index->save())
-			{
+			if ($sql = $index->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAlterIndex', array('{index}' => $index->INDEX_NAME)),
-					null,
-					$sql);
+				$response->addNotification('success', Yii::t('core', 'successAlterIndex', ['{index}' => $index->INDEX_NAME]), null, $sql);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
@@ -168,11 +173,11 @@ class IndexController extends Controller
 
 		$indexTypes = $table->getSupportedIndexTypes();
 
-		$this->render('form', array(
-			'index' => $index,
-			'indexTypes' => $indexTypes,
+		$this->render('form', [
+			'index'         => $index,
+			'indexTypes'    => $indexTypes,
 			'addColumnData' => $this->getColumnSelect($table),
-		));
+		]);
 	}
 
 	public function actionDrop()
@@ -181,58 +186,22 @@ class IndexController extends Controller
 		$indexName = Yii::app()->request->getPost('index');
 
 		$response = new AjaxResponse();
-		try
-		{
-			$index = Index::model()->findByAttributes(array(
-				'TABLE_SCHEMA' => $this->schema,
-				'TABLE_NAME' => $this->table,
-				'INDEX_NAME' => $indexName,
-			));
+		try {
+			$index                  = Index::model()->findByAttributes([
+																		   'TABLE_SCHEMA' => $this->schema,
+																		   'TABLE_NAME'   => $this->table,
+																		   'INDEX_NAME'   => $indexName,
+																	   ]);
 			$index->throwExceptions = true;
-			$sql = $index->delete();
-			$response->addNotification('success',
-				Yii::t('core', 'successDropIndex', array('{index}' => $index->INDEX_NAME)),
-				null,
-				$sql);
+			$sql                    = $index->delete();
+			$response->addNotification('success', Yii::t('core', 'successDropIndex', ['{index}' => $index->INDEX_NAME]), null, $sql);
 			$response->addData('success', true);
 		}
-		catch(DbException $ex)
-		{
-			$response->addNotification('error',
-				Yii::t('core', 'errorDropIndex', array('{index}' => $indexName)),
-				$ex->getText(),
-				$ex->getSql());
+		catch (DbException $ex) {
+			$response->addNotification('error', Yii::t('core', 'errorDropIndex', ['{index}' => $indexName]), $ex->getText(), $ex->getSql());
 			$response->addData('success', false);
 		}
 		$this->sendJSON($response);
-	}
-
-	private function getColumnSelect(Table $table)
-	{
-		$data = array(
-			'' => Yii::t('core', 'selectColumnToAdd') . ':',
-		);
-		foreach($table->columns AS $column)
-		{
-			$data[$column->COLUMN_NAME] = $column->COLUMN_NAME;
-		}
-		return $data;
-	}
-
-	private function getColumnsFromRequest()
-	{
-		$columns = array();
-		foreach((array)Yii::app()->request->getPost('columns') AS $column)
-		{
-			$col = new IndexColumn();
-			$col->COLUMN_NAME = $column;
-			if((int)@$_POST['keyLengths'][$column] > 0)
-			{
-				$col->SUB_PART = (int)$_POST['keyLengths'][$column];
-			}
-			$columns[] = $col;
-		}
-		return $columns;
 	}
 
 }

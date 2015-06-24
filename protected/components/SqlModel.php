@@ -25,73 +25,63 @@ abstract class SqlModel extends CModel
 {
 
 	private static $db;
-	private static $models = array();
+	private static $models = [];
 
-	private $_attributes = array();
+	private $_attributes = [];
+
+	public static function model($class = __CLASS__)
+	{
+		if (!isset(self::$models[$class])) {
+			self::$models[$class] = new $class();
+		}
+
+		return self::$models[$class];
+	}
 
 	public function __get($name)
 	{
-		if(isset($this->_attributes[$name]))
-		{
+		if (isset($this->_attributes[$name])) {
 			return $this->_attributes[$name];
 		}
-		elseif(in_array($name, $this->attributeNames()))
-		{
+		elseif (in_array($name, $this->attributeNames())) {
 			return null;
 		}
-		else
-		{
+		else {
 			return parent::__get($name);
 		}
 	}
 
-	public function __set($name,$value)
+	public function __set($name, $value)
 	{
-		if(in_array($name, $this->attributeNames()))
-		{
+		if (in_array($name, $this->attributeNames())) {
 			$this->_attributes[$name] = $value;
 		}
-		else
-		{
+		else {
 			parent::__set($name, $value);
 		}
 	}
 
 	public function __isset($name)
 	{
-		if(isset($this->_attributes[$name]))
-		{
+		if (isset($this->_attributes[$name])) {
 			return true;
 		}
-		elseif(in_array($name, $this->attributeNames()))
-		{
+		elseif (in_array($name, $this->attributeNames())) {
 			return false;
 		}
-		else
-		{
+		else {
 			return parent::__isset($name);
 		}
 	}
 
 	public function __unset($name)
 	{
-		if(in_array($name, $this->attributeNames()))
-		{
+		if (in_array($name, $this->attributeNames())) {
 			unset($this->_attributes[$name]);
 		}
-		else
-		{
+		else {
 			parent::__unset($name);
 		}
-	}
-
-	public static function model($class = __CLASS__)
-	{
-		if(!isset(self::$models[$class]))
-		{
-			self::$models[$class] = new $class();
-		}
-		return self::$models[$class];
 	}
 
 	public function findAll()
@@ -99,20 +89,104 @@ abstract class SqlModel extends CModel
 		return $this->populateRecords($this->queryAll());
 	}
 
-	public function findAllByAttributes(array $attributes = array())
+	public function populateRecords($data)
+	{
+		$records = [];
+		foreach ($data as $attributes) {
+			$records[] = $this->populateRecord($attributes);
+		}
+
+		return $records;
+	}
+
+	public function populateRecord($attributes)
+	{
+		$record              = $this->instantiate($attributes);
+		$availableAttributes = $this->attributeNames();
+		foreach ($attributes as $name => $value) {
+			if (property_exists($record, $name)) {
+				$record->$name = $value;
+			}
+			elseif (array_search($name, $availableAttributes) !== false) {
+				$record->_attributes[$name] = $value;
+			}
+		}
+		$record->attachBehaviors($record->behaviors());
+
+		return $record;
+	}
+
+	protected function instantiate($attributes)
+	{
+		$class = get_class($this);
+
+		return new $class(null);
+	}
+
+	protected function queryAll(array $attributes = [])
+	{
+		$cmd     = $this->getDbConnection()->createCommand($this->getSql());
+		$results = $cmd->queryAll();
+		foreach ($results AS $key => $result) {
+			$isValid = true;
+			foreach ($attributes AS $key2 => $value) {
+				if (is_array($value)) {
+					$isValid2 = false;
+					foreach ($value AS $value2) {
+						if ($result[$key2] == $value2) {
+							$isValid2 = true;
+						}
+					}
+					if (!$isValid2) {
+						$isValid = false;
+						break;
+					}
+				}
+				elseif ($result[$key2] != $value) {
+					$isValid = false;
+					break;
+				}
+			}
+			if (!$isValid) {
+				unset($results[$key]);
+			}
+		}
+
+		return $results;
+	}
+
+	public function getDbConnection()
+	{
+		if (self::$db !== null) {
+			return self::$db;
+		}
+		else {
+			self::$db = Yii::app()->getDb();
+			if (self::$db instanceof CDbConnection) {
+				self::$db->setActive(true);
+
+				return self::$db;
+			}
+			else {
+				throw new CDbException(Yii::t('core', 'Active Record requires a "db" CDbConnection application component.'));
+			}
+		}
+	}
+
+	protected abstract function getSql();
+
+	public function findAllByAttributes(array $attributes = [])
 	{
 		return $this->populateRecords($this->queryAll($attributes));
 	}
 
-	public function findByAttributes(array $attributes = array())
+	public function findByAttributes(array $attributes = [])
 	{
 		$results = $this->queryAll($attributes);
-		if(count($results) > 0)
-		{
+		if (count($results) > 0) {
 			return $this->populateRecord(current($results));
 		}
-		else
-		{
+		else {
 			return null;
 		}
 	}
@@ -121,102 +195,6 @@ abstract class SqlModel extends CModel
 	{
 		return $this->attributeNames();
 	}
-
-	public function getDbConnection()
-	{
-		if(self::$db !== null)
-		{
-			return self::$db;
-		}
-		else
-		{
-			self::$db = Yii::app()->getDb();
-			if(self::$db instanceof CDbConnection)
-			{
-				self::$db->setActive(true);
-				return self::$db;
-			}
-			else
-			{
-				throw new CDbException(Yii::t('core','Active Record requires a "db" CDbConnection application component.'));
-			}
-		}
-	}
-
-	public function populateRecord($attributes)
-	{
-		$record = $this->instantiate($attributes);
-		$availableAttributes = $this->attributeNames();
-		foreach($attributes as $name => $value)
-		{
-			if(property_exists($record, $name))
-			{
-				$record->$name = $value;
-			}
-			elseif(array_search($name, $availableAttributes) !== false)
-			{
-				$record->_attributes[$name] = $value;
-			}
-		}
-		$record->attachBehaviors($record->behaviors());
-		return $record;
-	}
-
-	public function populateRecords($data)
-	{
-		$records=array();
-		foreach($data as $attributes)
-		{
-			$records[] = $this->populateRecord($attributes);
-		}
-		return $records;
-	}
-
-	protected function instantiate($attributes)
-	{
-		$class=get_class($this);
-		return new $class(null);
-	}
-
-	protected function queryAll(array $attributes = array())
-	{
-		$cmd = $this->getDbConnection()->createCommand($this->getSql());
-		$results = $cmd->queryAll();
-		foreach($results AS $key => $result)
-		{
-			$isValid = true;
-			foreach($attributes AS $key2 => $value)
-			{
-				if(is_array($value))
-				{
-					$isValid2 = false;
-					foreach($value AS $value2)
-					{
-						if($result[$key2] == $value2)
-						{
-							$isValid2 = true;
-						}
-					}
-					if(!$isValid2)
-					{
-						$isValid = false;
-						break;
-					}
-				}
-				elseif($result[$key2] != $value)
-				{
-					$isValid = false;
-					break;
-				}
-			}
-			if(!$isValid){
-				unset($results[$key]);
-			}
-		}
-		return $results;
-	}
-
-	protected abstract function getSql();
 
 }
 

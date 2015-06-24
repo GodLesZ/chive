@@ -24,7 +24,7 @@ class PharAssetManager extends CAssetManager
 {
     public function init()
     {
-        $this->setBaseUrl(Yii::app()->request->baseUrl . "/index.php/" . self::DEFAULT_BASEPATH);
+        $this->setBaseUrl(Yii::app()->request->baseUrl."/index.php/".self::DEFAULT_BASEPATH);
 
         parent::init();
     }

@@ -18,51 +18,39 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-  /*
-   * Tab menu
-   */
+/*
+ * Tab menu
+ */
 
- ul.tabMenu li {
-	font-size: 120%;
-	margin-right: 10px;
-	background: #DFDFDF url('../images/tab-bg.png') repeat-x top left;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	border: solid 1px #C0C0C0;
-	border-top: none;
- }
-  
-ul.tabMenu li a.icon span {
-	text-decoration: none;
+ul.tabMenu li {
+    font-size    : 120%;
+    margin-right : 10px;
+    border       : solid 1px #C0C0C0;
+    border-top   : none;
 }
-   
- ul.tabMenu li>a {
-	padding: 3px 10px 5px 10px;
- }
- 
- ul.tabMenu li.active,
- ul.tabMenu li:hover {
-	background-color: #d4e73f;
-	background-position: bottom left;
- }
 
- div.editor > div
- {
-	 border: solid 1px #C0C0C0;
-	 border-radius: 5px;
-	 position: relative;
-	 width: 100%;
-	 min-height: 100px;
-	 display: block;
- }
+ul.tabMenu li a.icon span {
+    text-decoration : none;
+}
 
- div.editor div.ace_gutter
- {
- 	border-top-left-radius: 5px;
- 	border-bottom-left-radius: 5px;
- }
+ul.tabMenu li > a {
+    padding : 3px 10px 5px 10px;
+}
 
- div.editor > textarea
- {
- 	display: none;
- }
+ul.tabMenu li.active,
+ul.tabMenu li:hover {
+    background-color    : #D4E73F;
+    background-position : bottom left;
+}
+
+div.editor > div {
+    border     : solid 1px #C0C0C0;
+    position   : relative;
+    width      : 100%;
+    min-height : 100px;
+    display    : block;
+}
+
+div.editor > textarea {
+    display : none;
+}

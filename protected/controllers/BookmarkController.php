@@ -30,7 +30,7 @@ class BookmarkController extends Controller
 	{
 		$this->layout = false;
 
-		$request = Yii::app()->getRequest();
+		$request      = Yii::app()->getRequest();
 		$this->schema = $request->getParam('schema');
 
 		parent::__construct($id, $module);
@@ -44,44 +44,42 @@ class BookmarkController extends Controller
 	{
 		$response = new AjaxResponse();
 
-		$name = $_POST['name'];
+		$name   = $_POST['name'];
 		$schema = $_POST['schema'];
-		$query = $_POST['query'];
+		$query  = $_POST['query'];
 
 		$oldValue = Yii::app()->user->settings->get('bookmarks', 'database', $schema);
 
 		$exists = (bool)Yii::app()->user->settings->get('bookmarks', 'database', $schema, 'name', $name);
 
-		if($exists)
-		{
-			$response->addNotification('error', Yii::t('core', 'errorBookmarkWithThisNameAlreadyExists', array("{name}" => $name)));
+		if ($exists) {
+			$response->addNotification('error', Yii::t('core', 'errorBookmarkWithThisNameAlreadyExists', ["{name}" => $name]));
 			$this->sendJSON($response);
 		}
 
-		if($oldValue && !is_array($oldValue))
-		{
-			$oldValue = array();
+		if ($oldValue && !is_array($oldValue)) {
+			$oldValue = [];
 		}
 
-		$id = substr(md5(microtime(true)),0, 10);
+		$id = substr(md5(microtime(true)), 0, 10);
 
-		$oldValue[] = array(
-			'id' => $id,
-			'name' => $name,
+		$oldValue[] = [
+			'id'    => $id,
+			'name'  => $name,
 			'query' => $query,
-		);
+		];
 
 		Yii::app()->user->settings->set('bookmarks', $oldValue, 'database', $schema);
 		Yii::app()->user->settings->saveSettings();
 
-		$response->addNotification('success', Yii::t('core', 'successAddBookmark', array('{name}'=>$name)), null, $query);
+		$response->addNotification('success', Yii::t('core', 'successAddBookmark', ['{name}' => $name]), null, $query);
 
-		$response->addData(null, array(
-			'id' => $id,
+		$response->addData(null, [
+			'id'     => $id,
 			'schema' => $this->schema,
-			'name' => $name,
-			'query' => $query,
-		));
+			'name'   => $name,
+			'query'  => $query,
+		]);
 
 		$this->sendJSON($response);
 	}
@@ -93,14 +91,13 @@ class BookmarkController extends Controller
 	{
 		$response = new AjaxResponse();
 
-		$id = Yii::app()->getRequest()->getParam('id');
+		$id     = Yii::app()->getRequest()->getParam('id');
 		$schema = Yii::app()->getRequest()->getParam('schema');
 
 		$bookmarks = Yii::app()->user->settings->get('bookmarks', 'database', $schema);
 
-		foreach($bookmarks AS $key=>$bookmark)
-		{
-			if($bookmark['id'] == $id) {
+		foreach ($bookmarks AS $key => $bookmark) {
+			if ($bookmark['id'] == $id) {
 				$name = $bookmark['name'];
 				unset($bookmarks[$key]);
 			}
@@ -109,7 +106,7 @@ class BookmarkController extends Controller
 		Yii::app()->user->settings->set('bookmarks', $bookmarks, 'database', $schema);
 		Yii::app()->user->settings->saveSettings();
 
-		$response->addNotification('success', Yii::t('core', 'successDeleteBookmark', array('{name}'=>$name)));
+		$response->addNotification('success', Yii::t('core', 'successDeleteBookmark', ['{name}' => $name]));
 		$this->sendJSON($response);
 
 	}
@@ -121,20 +118,18 @@ class BookmarkController extends Controller
 	{
 		$id = Yii::app()->getRequest()->getParam('id');
 
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
 
 		$bookmark = Yii::app()->user->settings->get('bookmarks', 'database', $this->schema, 'id', $id);
 
-		try
-		{
+		try {
 			$cmd = new CDbCommand($this->db, $bookmark['query']);
 			$cmd->execute();
-			$response->addNotification('success', Yii::t('core', 'successExecuteBookmark', array('{name}'=>$bookmark['name'])), null, $bookmark['query']);
+			$response->addNotification('success', Yii::t('core', 'successExecuteBookmark', ['{name}' => $bookmark['name']]), null, $bookmark['query']);
 		}
-		catch (Exception $ex)
-		{
-			$response->addNotification('error', $ex->getMessage(), $bookmark['query'], array('isSticky'=>true));
+		catch (Exception $ex) {
+			$response->addNotification('error', $ex->getMessage(), $bookmark['query'], ['isSticky' => true]);
 		}
 
 		$this->sendJSON($response);

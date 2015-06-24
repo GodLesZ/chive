@@ -23,37 +23,35 @@
 
 class ChiveHttpRequest extends CHttpRequest
 {
-	
-	/**
-	 * @see CHttpRequest::normalizeRequest()
-	 */
-	protected function normalizeRequest()
-	{
-		$this->normalizeEOL($_POST);
-		$this->normalizeEOL($_GET);
-		$this->normalizeEOL($_REQUEST);
-		
-		parent::normalizeRequest();
-	}
-	
-	/**
-	 * Normalizes all EOL types to LFs in all $data strings
-	 * @param	mixed				$data				any type, is changed directly 
-	 * 													instead of returning a value
-	 */
-	protected function normalizeEOL(&$data) 
-	{
-		if(is_array($data) || is_object($data))
-		{
-			foreach($data as &$var)
-			{
-				$this->normalizeEOL($var);
-			}
-		}
-		elseif(is_string($data))
-		{
-			$data = str_replace("\r", "\n", str_replace("\r\n", "\n", $data));
-		} 
-	}
-	
+
+    /**
+     * @see CHttpRequest::normalizeRequest()
+     */
+    protected function normalizeRequest()
+    {
+        $this->normalizeEOL($_POST);
+        $this->normalizeEOL($_GET);
+        $this->normalizeEOL($_REQUEST);
+
+        parent::normalizeRequest();
+    }
+
+    /**
+     * Normalizes all EOL types to LFs in all $data strings
+     *
+     * @param    mixed $data                              any type, is changed directly
+     *                                                    instead of returning a value
+     */
+    protected function normalizeEOL(&$data)
+    {
+        if (is_array($data) || is_object($data)) {
+            foreach ($data as &$var) {
+                $this->normalizeEOL($var);
+            }
+        }
+        elseif (is_string($data)) {
+            $data = str_replace("\r", "\n", str_replace("\r\n", "\n", $data));
+        }
+    }
+
 }

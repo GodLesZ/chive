@@ -35,17 +35,15 @@ class PrivilegesController extends Controller
 	{
 		$request = Yii::app()->getRequest();
 
-		if($request->isAjaxRequest)
-		{
+		if ($request->isAjaxRequest) {
 			$this->layout = false;
 		}
 
 		// Get parameters from request
 		$request = Yii::app()->getRequest();
-		$user = $request->getParam('user');
-		if($user)
-		{
-			$data = User::splitId($user);
+		$user    = $request->getParam('user');
+		if ($user) {
+			$data       = User::splitId($user);
 			$this->user = $data['User'];
 			$this->host = $data['Host'];
 		}
@@ -58,21 +56,20 @@ class PrivilegesController extends Controller
 	/**
 	 * Connects to the specified schema and assigns it to all models which need it.
 	 *
-	 * @return	CDbConnection
+	 * @return    CDbConnection
 	 */
 	protected function connectDb($schema)
 	{
 		// Connect to database
-		$connectionString = 'mysql:host=' . Yii::app()->user->host . ';port=' . Yii::app()->user->port . ';dbname=mysql';
-		$this->db = new CDbConnection($connectionString, Yii::app()->user->name, Yii::app()->user->password);
+		$connectionString = 'mysql:host='.Yii::app()->user->host.';port='.Yii::app()->user->port.';dbname=mysql';
+		$this->db         = new CDbConnection($connectionString, Yii::app()->user->name, Yii::app()->user->password);
 
-		$this->db->charset = 'utf8';
+		$this->db->charset        = 'utf8';
 		$this->db->emulatePrepare = true;
-		$this->db->active = true;
+		$this->db->active         = true;
 
 		// Assign to all models which need it
-		ActiveRecord::$db =
-		SchemaPrivilege::$db = $this->db;
+		ActiveRecord::$db = SchemaPrivilege::$db = $this->db;
 
 		// Return connection
 		return $this->db;
@@ -90,101 +87,95 @@ class PrivilegesController extends Controller
 		$pages->route = '#privileges/users';
 
 		// Sort
-		$sort = new CSort('User');
-		$sort->attributes = array(
-			'User' => 'username',
-			'Host' => 'host',
+		$sort               = new CSort('User');
+		$sort->attributes   = [
+			'User'            => 'username',
+			'Host'            => 'host',
 			'Password = \'\'' => 'password',
-		);
+		];
 		$sort->defaultOrder = 'User ASC';
-		$sort->route = '#privileges/users';
+		$sort->route        = '#privileges/users';
 		$sort->applyOrder($criteria);
 
 		// Fetch users
 		$users = User::model()->findAll($criteria);
 
 		// Render
-		$this->render('users', array(
+		$this->render('users', [
 			'users' => $users,
 			'pages' => $pages,
-			'sort' => $sort,
-		));
+			'sort'  => $sort,
+		]);
 	}
 
 	public function actionSchemata()
 	{
 		// Create criteria
-		$criteria = new CDbCriteria();
+		$criteria            = new CDbCriteria();
 		$criteria->condition = 'Host = :host AND User = :user';
-		$criteria->params = array(
+		$criteria->params    = [
 			':host' => $this->host,
 			':user' => $this->user,
-		);
+		];
 
 		// Pagination
 		$pages = new Pagination(User::model()->count($criteria));
 		$pages->setupPageSize('pageSize', 'privileges.userSchemata');
 		$pages->applyLimit($criteria);
-		$pages->route = '#privileges/users/' . base64_encode($this->user . '@' . $this->host) . '/schemata';
+		$pages->route = '#privileges/users/'.base64_encode($this->user.'@'.$this->host).'/schemata';
 
 		// Sort
-		$sort = new CSort('User');
-		$sort->attributes = array(
-			'User' => 'username',
-			'Host' => 'host',
+		$sort               = new CSort('User');
+		$sort->attributes   = [
+			'User'            => 'username',
+			'Host'            => 'host',
 			'Password = \'\'' => 'password',
-		);
+		];
 		$sort->defaultOrder = 'User ASC';
-		$sort->route = '#privileges/users/' . base64_encode($this->user . '@' . $this->host) . '/schemata';
+		$sort->route        = '#privileges/users/'.base64_encode($this->user.'@'.$this->host).'/schemata';
 		$sort->applyOrder($criteria);
 
 		// Fetch schemata
 		$schemata = SchemaPrivilege::model()->findAll($criteria);
 
 		// Render
-		$this->render('userSchemata', array(
+		$this->render('userSchemata', [
 			'schemata' => $schemata,
-			'user' => $this->user,
-			'host' => $this->host,
-			'pages' => $pages,
-			'sort' => $sort,
-		));
+			'user'     => $this->user,
+			'host'     => $this->host,
+			'pages'    => $pages,
+			'sort'     => $sort,
+		]);
 	}
 
 	public function actionDropUsers()
 	{
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
-		$users = (array)$_POST['users'];
-		$droppedUsers = $droppedSqls = array();
+		$users             = (array)$_POST['users'];
+		$droppedUsers      = $droppedSqls = [];
 
-		foreach($users AS $user)
-		{
-			$pk = User::splitId($user);
-			$userObj = User::model()->findByPk($pk);
+		foreach ($users AS $user) {
+			$pk                       = User::splitId($user);
+			$userObj                  = User::model()->findByPk($pk);
 			$userObj->throwExceptions = true;
-			try
-			{
-				$sql = $userObj->delete();
-				$droppedUsers[] = '\'' . $userObj->User . '\'@\'' . $userObj->Host . '\'';
-				$droppedSqls[] = $sql;
+			try {
+				$sql            = $userObj->delete();
+				$droppedUsers[] = '\''.$userObj->User.'\'@\''.$userObj->Host.'\'';
+				$droppedSqls[]  = $sql;
 			}
-			catch(DbException $ex)
-			{
-				$response->addNotification('error',
-					Yii::t('core', 'errorDropUser', array('{user}' => '\'' . $userObj->User . '\'@\'' . $userObj->Host . '\'')),
-					$ex->getText(),
-					$ex->getSql());
+			catch (DbException $ex) {
+				$response->addNotification('error', Yii::t('core', 'errorDropUser', ['{user}' => '\''.$userObj->User.'\'@\''.$userObj->Host.'\'']), $ex->getText(), $ex->getSql());
 			}
 		}
 
 		$count = count($droppedUsers);
-		if($count > 0)
-		{
-			$response->addNotification('success',
-				Yii::t('core', 'successDropUser', array($count, '{user}' => $droppedUsers[0], '{userCount}' => $count)),
-				($count > 1 ? implode(', ', $droppedUsers) : null),
-				implode("\n", $droppedSqls));
+		if ($count > 0) {
+			$response->addNotification('success', Yii::t('core', 'successDropUser', [
+				$count,
+				'{user}'      => $droppedUsers[0],
+				'{userCount}' => $count
+			]), ($count > 1 ? implode(', ', $droppedUsers) : null), implode("\n", $droppedSqls));
 		}
 
 		$this->sendJSON($response);
@@ -196,24 +187,22 @@ class PrivilegesController extends Controller
 	public function actionCreateUser()
 	{
 		$user = new User();
-		if(isset($_POST['User']))
-		{
+		if (isset($_POST['User'])) {
 			$user->attributes = $_POST['User'];
-			if($sql = $user->save())
-			{
+			if ($sql = $user->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAddUser', array('{user}' => $user->User, '{host}' => $user->Host)),
-					null,
-					$sql);
+				$response->addNotification('success', Yii::t('core', 'successAddUser', [
+					'{user}' => $user->User,
+					'{host}' => $user->Host
+				]), null, $sql);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
 		}
 
-		$this->render('userForm', array(
+		$this->render('userForm', [
 			'user' => $user,
-		));
+		]);
 	}
 
 	/**
@@ -221,20 +210,18 @@ class PrivilegesController extends Controller
 	 */
 	public function actionUpdateUser()
 	{
-		$user = User::model()->findByPk(array(
-			'User' => $this->user,
-			'Host' => $this->host,
-		));
-		if(isset($_POST['User']))
-		{
+		$user = User::model()->findByPk([
+											'User' => $this->user,
+											'Host' => $this->host,
+										]);
+		if (isset($_POST['User'])) {
 			$user->attributes = $_POST['User'];
-			if($sql = $user->save())
-			{
+			if ($sql = $user->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successUpdateUser', array('{user}' => $user->User, '{host}' => $user->Host)),
-					null,
-					$sql);
+				$response->addNotification('success', Yii::t('core', 'successUpdateUser', [
+					'{user}' => $user->User,
+					'{host}' => $user->Host
+				]), null, $sql);
 
 				$this->logoutIfPasswordChanged($user);
 
@@ -243,34 +230,32 @@ class PrivilegesController extends Controller
 			}
 		}
 
-		$this->render('userForm', array(
+		$this->render('userForm', [
 			'user' => $user,
-		));
+		]);
 	}
 
 	public function logoutIfPasswordChanged($user)
 	{
-		if(Yii::app()->user->name == $user->User
-			   && isset($_POST['User']["plainPassword"]))
-		{
+		if (Yii::app()->user->name == $user->User && isset($_POST['User']["plainPassword"])) {
 			Yii::app()->user->logout();
 		}
 	}
 
 	public function actionCreateSchema()
 	{
-		$schema = new SchemaPrivilege();
+		$schema       = new SchemaPrivilege();
 		$schema->User = $this->user;
 		$schema->Host = $this->host;
-		if(isset($_POST['SchemaPrivilege']))
-		{
+		if (isset($_POST['SchemaPrivilege'])) {
 			$schema->attributes = $_POST['SchemaPrivilege'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAddSchemaSpecificPrivileges', array('{user}' => $schema->User, '{host}' => $schema->Host, '{schema}' => $schema->Db)),
-					null/*,
+				$response->addNotification('success', Yii::t('core', 'successAddSchemaSpecificPrivileges', [
+					'{user}'   => $schema->User,
+					'{host}'   => $schema->Host,
+					'{schema}' => $schema->Db
+				]), null/*,
 					$sql*/);
 				$response->refresh = true;
 				$this->sendJSON($response);
@@ -278,99 +263,88 @@ class PrivilegesController extends Controller
 		}
 
 		// Prepare all schemata
-		$schemata = $existing = array();
+		$schemata    = $existing = [];
 		$allSchemata = Schema::model()->findAll();
-		$allExisting = SchemaPrivilege::model()->findAllByAttributes(array(
-			'User' => $this->user,
-			'Host' => $this->host,
-		));
-		foreach($allExisting AS $existing1)
-		{
+		$allExisting = SchemaPrivilege::model()->findAllByAttributes([
+																		 'User' => $this->user,
+																		 'Host' => $this->host,
+																	 ]);
+		foreach ($allExisting AS $existing1) {
 			$existing[] = $existing1->Db;
 		}
-		foreach($allSchemata AS $schema1)
-		{
-			if(array_search($schema1->SCHEMA_NAME, $existing) === false)
-			{
+		foreach ($allSchemata AS $schema1) {
+			if (array_search($schema1->SCHEMA_NAME, $existing) === false) {
 				$schemata[$schema1->SCHEMA_NAME] = $schema1->SCHEMA_NAME;
 			}
 		}
 
-		$this->render('schemaPrivilegeForm', array(
-			'schema' => $schema,
+		$this->render('schemaPrivilegeForm', [
+			'schema'   => $schema,
 			'schemata' => $schemata,
-		));
+		]);
 	}
 
 	public function actionUpdateSchema()
 	{
-		$schema = SchemaPrivilege::model()->findByPk(array(
-			'Host' => $this->host,
-			'User' => $this->user,
-			'Db' => $this->schema,
-		));
-		if(isset($_POST['SchemaPrivilege']))
-		{
+		$schema = SchemaPrivilege::model()->findByPk([
+														 'Host' => $this->host,
+														 'User' => $this->user,
+														 'Db'   => $this->schema,
+													 ]);
+		if (isset($_POST['SchemaPrivilege'])) {
 			$schema->attributes = $_POST['SchemaPrivilege'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successUpdateSchemaSpecificPrivileges', array('{user}' => $schema->User, '{host}' => $schema->Host, '{schema}' => $schema->Db)),
-					null/*,
+				$response->addNotification('success', Yii::t('core', 'successUpdateSchemaSpecificPrivileges', [
+					'{user}'   => $schema->User,
+					'{host}'   => $schema->Host,
+					'{schema}' => $schema->Db
+				]), null/*,
 					$sql*/);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
 		}
 
-		$this->render('schemaPrivilegeForm', array(
+		$this->render('schemaPrivilegeForm', [
 			'schema' => $schema,
-		));
+		]);
 	}
 
 	public function actionDropSchema()
 	{
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
-		$schemata = (array)$_POST['schemata'];
-		$droppedSchemata = $droppedSqls = array();
+		$schemata          = (array)$_POST['schemata'];
+		$droppedSchemata   = $droppedSqls = [];
 
-		foreach($schemata AS $schema)
-		{
-			$schemaObj = SchemaPrivilege::model()->findByPk(array(
-				'Host' => $this->host,
-				'User' => $this->user,
-				'Db' => $schema,
-			));
-			try
-			{
-				$sql = $schemaObj->delete();
+		foreach ($schemata AS $schema) {
+			$schemaObj = SchemaPrivilege::model()->findByPk([
+																'Host' => $this->host,
+																'User' => $this->user,
+																'Db'   => $schema,
+															]);
+			try {
+				$sql               = $schemaObj->delete();
 				$droppedSchemata[] = $schema;
-				$droppedSqls[] = $sql;
+				$droppedSqls[]     = $sql;
 			}
-			catch(DbException $ex)
-			{
-				$response->addNotification('error',
-					Yii::t('core', 'errorDropSchemaSpecificPrivileges', array('{user}' => $user)),
-					$ex->getText()/*,
+			catch (DbException $ex) {
+				$response->addNotification('error', Yii::t('core', 'errorDropSchemaSpecificPrivileges', ['{user}' => $user]), $ex->getText()/*,
 					$ex->getSql()*/);
 			}
 		}
 
 		$count = count($droppedSchemata);
-		if($count > 0)
-		{
-			$tArgs = array(
+		if ($count > 0) {
+			$tArgs = [
 				$count,
-				'{user}' => $this->user,
-				'{host}' => $this->host,
-				'{schema}' => $droppedSchemata[0],
+				'{user}'        => $this->user,
+				'{host}'        => $this->host,
+				'{schema}'      => $droppedSchemata[0],
 				'{schemaCount}' => $count,
-			);
-			$response->addNotification('success',
-				Yii::t('core', 'successDropSchemaSpecificPrivileges', $tArgs),
-				($count > 1 ? implode(', ', $droppedSchemata) : null)/*,
+			];
+			$response->addNotification('success', Yii::t('core', 'successDropSchemaSpecificPrivileges', $tArgs), ($count > 1 ? implode(', ', $droppedSchemata) : null)/*,
 				implode("\n", $droppedSqls)*/);
 		}
 

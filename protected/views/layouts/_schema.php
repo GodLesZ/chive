@@ -1,71 +1,74 @@
 <div class="tabMenu">
-	<?php $this->widget('TabMenu', array(
-		'items'=>array(
-			array(
-				'label' => Yii::t('core','tables'),
-				'icon' => 'table',
-				'link' => array(
-					'url' => 'tables',
-					'htmlOptions' => array('class'=>'icon'),
-				),
-				'visible'=>true,
-			),
-			array(
-				'label' => Yii::t('core','views'),
-				'icon' => 'view',
-				'link' => array(
-					'url' => 'views',
-					'htmlOptions' => array('class'=>'icon'),
-				),
+	<?php $this->widget('TabMenu', [
+		'items' => [
+			[
+				'label'   => Yii::t('core', 'tables'),
+				'icon'    => 'table',
+				'link'    => [
+					'url'         => 'tables',
+					'htmlOptions' => ['class' => 'icon'],
+				],
 				'visible' => true,
-			),
-			array(
-				'label' => Yii::t('core','sql'),
-				'icon' => 'sql',
-				'link' => array(
-					'url' => 'sql',
-					'htmlOptions' => array('class'=>'icon'),
-				),
+			],
+			[
+				'label'   => Yii::t('core', 'views'),
+				'icon'    => 'view',
+				'link'    => [
+					'url'         => 'views',
+					'htmlOptions' => ['class' => 'icon'],
+				],
 				'visible' => true,
-			),
-			array(
-				'label' => Yii::t('core','export'),
-				'icon' => 'save',
-				'link' => array(
-					'url' => 'export',
-					'htmlOptions' => array('class'=>'icon'),
-				),
+			],
+			[
+				'label'   => Yii::t('core', 'sql'),
+				'icon'    => 'sql',
+				'link'    => [
+					'url'         => 'sql',
+					'htmlOptions' => ['class' => 'icon'],
+				],
 				'visible' => true,
-			),
-			array(
-				'label' => Yii::t('core','import'),
-				'icon' => 'import',
-				'link' => array(
-					'url' => 'import',
-					'htmlOptions' => array('class'=>'icon'),
-				),
+			],
+			[
+				'label'   => Yii::t('core', 'export'),
+				'icon'    => 'save',
+				'link'    => [
+					'url'         => 'export',
+					'htmlOptions' => ['class' => 'icon'],
+				],
 				'visible' => true,
-			),
-			array(
-				'label' => Yii::t('core', 'routines'),
-				'icon' => 'procedure',
-				'link' => array(
-					'url' => 'routines',
-					'htmlOptions' => array('class' => 'icon'),
-				),
+			],
+			[
+				'label'   => Yii::t('core', 'import'),
+				'icon'    => 'import',
+				'link'    => [
+					'url'         => 'import',
+					'htmlOptions' => ['class' => 'icon'],
+				],
 				'visible' => true,
-			),
-			array(
-				'label' => Yii::t('core','drop'),
-				'icon' => 'delete',
-				'link' => array(
-					'url' => 'javascript:void(0)',
-					'htmlOptions' => array('class'=>'icon', 'onclick'=>'schemaGeneral.dropSchema()'),
-				),
+			],
+			[
+				'label'   => Yii::t('core', 'routines'),
+				'icon'    => 'procedure',
+				'link'    => [
+					'url'         => 'routines',
+					'htmlOptions' => ['class' => 'icon'],
+				],
+				'visible' => true,
+			],
+			[
+				'label'   => Yii::t('core', 'drop'),
+				'icon'    => 'delete',
+				'link'    => [
+					'url'         => 'javascript:void(0)',
+					'htmlOptions' => [
+						'class'   => 'icon',
+						'onclick' => 'schemaGeneral.dropSchema()'
+					],
+				],
 				'visible' => Yii::app()->user->privileges->checkSchema($this->schema, 'DROP'),
-			),
-		),
-	));
+			],
+		],
+	]);
 	?>
 </div>
 
@@ -79,13 +82,13 @@
 </div>
 
 <script type="text/javascript">
-var schema = '<?php echo $this->schema; ?>';
-schemaGeneral.setupDialogs();
-breadCrumb.set([
-	{
-		icon: 'database',
-		href: 'javascript:chive.goto(\'tables\')',
-		text: schema
-	}
-]);
+	var schema = '<?php echo $this->schema; ?>';
+	schemaGeneral.setupDialogs();
+	breadCrumb.set([
+		{
+			icon: 'database',
+			href: 'javascript:chive.goto(\'tables\')',
+			text: schema
+		}
+	]);
 </script>

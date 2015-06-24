@@ -18,30 +18,32 @@ class SQPException extends Exception
 
 class SqlParser
 {
+	public static function parse($_sql)
+	{
+		if (!is_array($_sql)) {
+			$_sql = self::parsePMA($_sql);
+		}
+
+		$analyzedSql = PMA_SQP_analyze($_sql);
+
+		return self::trim(@$analyzedSql[0]);
+	}
+
 	public static function parsePMA($_sql)
 	{
 		return self::trim(PMA_SQP_parse($_sql));
 	}
-	
-	public static function parse($_sql)
-	{
-		if(!is_array($_sql))
-		{
-			$_sql = self::parsePMA($_sql);
-		}
-		
-		$analyzedSql = PMA_SQP_analyze($_sql);
-		return self::trim(@$analyzedSql[0]);
-	}
-	
+
 	private static function trim($_array)
 	{
-		if(!is_array($_array))
-		{
+		if (!is_array($_array)) {
 			return rtrim($_array);
 		}
-		
-   		return array_map(array("SqlParser", "trim"), $_array);
+
+		return array_map([
+							 "SqlParser",
+							 "trim"
+						 ], $_array);
 	}
-	
+
 }

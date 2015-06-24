@@ -26,15 +26,15 @@ class Routine extends CActiveRecord
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see        CActiveRecord::model()
 	 */
-	public static function model($className=__CLASS__)
+	public static function model($className = __CLASS__)
 	{
 		return parent::model($className);
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see        CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -42,33 +42,32 @@ class Routine extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see        CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
-		return array(
+		return [
 			'ROUTINE_SCHEMA',
 			'ROUTINE_NAME',
-		);
+		];
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see        CActiveRecord::delete()
 	 */
 	public function delete()
 	{
-		$sql = 'DROP ' . strtoupper($this->ROUTINE_TYPE) . ' ' . self::$db->quoteTableName($this->ROUTINE_NAME) . ';';
+		$sql = 'DROP '.strtoupper($this->ROUTINE_TYPE).' '.self::$db->quoteTableName($this->ROUTINE_NAME).';';
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
+
 			return $sql;
 		}
-		catch(CDbException $ex)
-		{
+		catch (CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
@@ -76,13 +75,14 @@ class Routine extends CActiveRecord
 	/**
 	 * Returns the CREATE FUNCTION|PROCEDURE statement for this routine.
 	 *
-	 * @return	string
+	 * @return    string
 	 */
 	public function getCreateRoutine()
 	{
-		$cmd = self::$db->createCommand('SHOW CREATE ' . strtoupper($this->ROUTINE_TYPE) . ' ' . self::$db->quoteTableName($this->ROUTINE_SCHEMA) . '.' . self::$db->quoteTableName($this->ROUTINE_NAME));
+		$cmd = self::$db->createCommand('SHOW CREATE '.strtoupper($this->ROUTINE_TYPE).' '.self::$db->quoteTableName($this->ROUTINE_SCHEMA).'.'.self::$db->quoteTableName($this->ROUTINE_NAME));
 		$res = $cmd->queryRow(false);
+
 		return $res[2];
 	}
-	
+
 }

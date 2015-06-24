@@ -23,16 +23,16 @@
 
 define('URL_MATCH', '([^\/]*)');
 
-return array(
-	'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
-	'name' => 'Chive',
-	'theme' => 'standard',
+return [
+	'basePath'       => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+	'name'           => 'Chive',
+	'theme'          => 'standard',
 
 	// preloading 'log' component
-	'preload' => array('log'),
+	'preload'        => ['log'],
 
 	// autoloading model and component classes
-	'import' => array(
+	'import'         => [
 		'application.models.*',
 		'application.models.Index',
 		'application.models.privileges.*',
@@ -43,198 +43,199 @@ return array(
 		'application.controllers.*',
 		'application.db.*',
 		'application.extensions.*',
-	),
+	],
 
 	// application components
-	'components' => array(
-	
-		'session' => array(
-			'class' => 'ChiveHttpSession',
-			'sessionName' => 'chiveSession',
-			'savePath' => 'protected/runtime/sessions',
-			'cookieParams' => array(
-				 'path' => ''
-			),
-		),
+	'components'     => [
 
-		'request' => array(
-			'class' => 'ChiveHttpRequest',
+		'session'      => [
+			'class'        => 'ChiveHttpSession',
+			'sessionName'  => 'chiveSession',
+			'savePath'     => 'protected/runtime/sessions',
+			'cookieParams' => [
+				'path' => ''
+			],
+		],
+
+		'request'      => [
+			'class'                  => 'ChiveHttpRequest',
 			'enableCookieValidation' => true,
-		),
+		],
 
-		'locale' => array(
-			'dateFormat' => 'middle',
+		'locale'       => [
+			'dateFormat'     => 'middle',
 			'dateTimeFormat' => 'middle'
-		),
+		],
 
 		// Log database
-		'log' => array(
-			'class' => 'CLogRouter',
-			'routes' => array(
-				array(
-					'class' => 'CFileLogRoute',
+		'log'          => [
+			'class'  => 'CLogRouter',
+			'routes' => [
+				[
+					'class'  => 'CFileLogRoute',
 					'levels' => 'error, warning, info, trace',
-				),
-				array(
-					'class' => 'CProfileLogRoute',
-					'levels' => 'error, warning, info, trace',
+				],
+				[
+					'class'         => 'CProfileLogRoute',
+					'levels'        => 'error, warning, info, trace',
 					'showInFireBug' => false,
-				),
-			),
-		),
+				],
+			],
+		],
 
 		// User settings
-		'user' => array(
+		'user'         => [
 			// Enable cookie-based authentication
 			'allowAutoLogin' => true,
-		),
+		],
 
 		// Database settings
-		'db' => array(
-			'class' => 'CDbConnection',
-			'connectionString' => 'mysql:host=localhost;dbname=information_schema',
-			'charset' => 'utf8',
-			'autoConnect' => false,
+		'db'           => [
+			'class'                 => 'CDbConnection',
+			'connectionString'      => 'mysql:host=localhost;dbname=information_schema',
+			'charset'               => 'utf8',
+			'autoConnect'           => false,
 			'schemaCachingDuration' => 3600,
-			'emulatePrepare' => true,
-		),
+			'emulatePrepare'        => true,
+		],
 
-		'messages' => array(
-		    'class' => 'application.components.messages.CXmlMessageSource',
-			'cachingDuration' => 24 * 60 * 60, // 24h
-		),
-		
-		'cache' => array(
+		'messages'     => [
+			'class'           => 'application.components.messages.CXmlMessageSource',
+			'cachingDuration' => 24 * 60 * 60,
+			// 24h
+		],
+
+		'cache'        => [
 			'class' => 'CFileCache',
-		),
+		],
 
 		// URL-Manager
-		'urlManager' => array(
-            'urlFormat' => 'path',
+		'urlManager'   => [
+			'urlFormat'      => 'path',
 			'showScriptName' => !isset($_GET['__chive_rewrite_on']),
-            'rules' => array(
+			'rules'          => [
 
 				// Site
-                'site/changeLanguage/<id:(.*)>' => 'site/changeLanguage',
-                'site/changeTheme/<id:(.*)>' => 'site/changeTheme',
+				'site/changeLanguage/<id:(.*)>'                                                                        => 'site/changeLanguage',
+				'site/changeTheme/<id:(.*)>'                                                                           => 'site/changeTheme',
 
 				// schemas
-				'schemata' => 'schema/list',
-				'schemata/create' => 'schema/create',
-				'schemata/update' => 'schema/update',
-				'schemata/drop' => 'schema/drop',
+				'schemata'                                                                                             => 'schema/list',
+				'schemata/create'                                                                                      => 'schema/create',
+				'schemata/update'                                                                                      => 'schema/update',
+				'schemata/drop'                                                                                        => 'schema/drop',
 
 				// Information
-				'information/status' => 'information/status',
-				'information/variables' => 'information/variables',
-				'information/characterSets' => 'information/characterSets',
-				'information/storageEngines' => 'information/storageEngines',
-				'information/processes' => 'information/processes',
-				'information/processes/kill' => 'information/killProcess',
+				'information/status'                                                                                   => 'information/status',
+				'information/variables'                                                                                => 'information/variables',
+				'information/characterSets'                                                                            => 'information/characterSets',
+				'information/storageEngines'                                                                           => 'information/storageEngines',
+				'information/processes'                                                                                => 'information/processes',
+				'information/processes/kill'                                                                           => 'information/killProcess',
 
 				// Privileges
-				'privileges/users' => 'privileges/users',
-				'privileges/users/<user:' . URL_MATCH . '>/update' => 'privileges/updateUser',
-				'privileges/userActions/create' => 'privileges/createUser',
-				'privileges/userActions/drop' => 'privileges/dropUsers',
+				'privileges/users'                                                                                     => 'privileges/users',
+				'privileges/users/<user:'.URL_MATCH.'>/update'                                                         => 'privileges/updateUser',
+				'privileges/userActions/create'                                                                        => 'privileges/createUser',
+				'privileges/userActions/drop'                                                                          => 'privileges/dropUsers',
 
-				'privileges/users/<user:' . URL_MATCH . '>/schemata' => 'privileges/schemata',
-				'privileges/users/<user:' . URL_MATCH . '>/schemata/<schema:' . URL_MATCH . '>/update' => 'privileges/updateSchema',
-				'privileges/users/<user:' . URL_MATCH . '>/schemaActions/create' => 'privileges/createSchema',
-				'privileges/users/<user:' . URL_MATCH . '>/schemaActions/drop' => 'privileges/dropSchema',
+				'privileges/users/<user:'.URL_MATCH.'>/schemata'                                                       => 'privileges/schemata',
+				'privileges/users/<user:'.URL_MATCH.'>/schemata/<schema:'.URL_MATCH.'>/update'                         => 'privileges/updateSchema',
+				'privileges/users/<user:'.URL_MATCH.'>/schemaActions/create'                                           => 'privileges/createSchema',
+				'privileges/users/<user:'.URL_MATCH.'>/schemaActions/drop'                                             => 'privileges/dropSchema',
 
 				// schema
-               	'schema'=>'schema/list',
-                'schema/<schema:'.URL_MATCH.'>'=>'schema/index',
-				'schema/<schema:'.URL_MATCH.'>/tables'=>'schema/tables',
-				'schema/<schema:'.URL_MATCH.'>/views'=>'schema/views',
-				'schema/<schema:'.URL_MATCH.'>/routines'=>'schema/routines',
-				'schema/<schema:'.URL_MATCH.'>/sql'=>'schema/sql',
-				'schema/<schema:'.URL_MATCH.'>/import'=>'schema/import',
-				'schema/<schema:'.URL_MATCH.'>/import/upload'=>'schema/upload',
-				'schema/<schema:'.URL_MATCH.'>/export'=>'schema/export',
+				'schema'                                                                                               => 'schema/list',
+				'schema/<schema:'.URL_MATCH.'>'                                                                        => 'schema/index',
+				'schema/<schema:'.URL_MATCH.'>/tables'                                                                 => 'schema/tables',
+				'schema/<schema:'.URL_MATCH.'>/views'                                                                  => 'schema/views',
+				'schema/<schema:'.URL_MATCH.'>/routines'                                                               => 'schema/routines',
+				'schema/<schema:'.URL_MATCH.'>/sql'                                                                    => 'schema/sql',
+				'schema/<schema:'.URL_MATCH.'>/import'                                                                 => 'schema/import',
+				'schema/<schema:'.URL_MATCH.'>/import/upload'                                                          => 'schema/upload',
+				'schema/<schema:'.URL_MATCH.'>/export'                                                                 => 'schema/export',
 
 				//Bookmarks
-				'schema/<schema:'.URL_MATCH.'>/bookmark/show/<id:(.+)>'=>'schema/showBookmark',
+				'schema/<schema:'.URL_MATCH.'>/bookmark/show/<id:(.+)>'                                                => 'schema/showBookmark',
 
-					// Table actions
-					'schema/<schema:'.URL_MATCH.'>/tableAction/create'=>'table/create',
-					'schema/<schema:'.URL_MATCH.'>/tableAction/truncate'=>'table/truncate',
-					'schema/<schema:'.URL_MATCH.'>/tableAction/drop'=>'table/drop',
+				// Table actions
+				'schema/<schema:'.URL_MATCH.'>/tableAction/create'                                                     => 'table/create',
+				'schema/<schema:'.URL_MATCH.'>/tableAction/truncate'                                                   => 'table/truncate',
+				'schema/<schema:'.URL_MATCH.'>/tableAction/drop'                                                       => 'table/drop',
 
-					// Table
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/browse'=>'table/browse',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/structure'=>'table/structure',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/sql'=>'table/sql',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/search'=>'table/search',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/insert'=>'row/insert',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/update'=>'table/update',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/export'=>'table/export',
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/import'=>'table/import',
+				// Table
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/browse'                                    => 'table/browse',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/structure'                                 => 'table/structure',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/sql'                                       => 'table/sql',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/search'                                    => 'table/search',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/insert'                                    => 'row/insert',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/update'                                    => 'table/update',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/export'                                    => 'table/export',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/import'                                    => 'table/import',
 
-						// ColumnActions
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columnAction/create'=>'column/create',
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columnAction/drop'=>'column/drop',
+				// ColumnActions
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columnAction/create'                       => 'column/create',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columnAction/drop'                         => 'column/drop',
 
-						// Column
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columns/<column:'.URL_MATCH.'>/move'=>'column/move',
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columns/<column:'.URL_MATCH.'>/update'=>'column/update',
+				// Column
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columns/<column:'.URL_MATCH.'>/move'       => 'column/move',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/columns/<column:'.URL_MATCH.'>/update'     => 'column/update',
 
-						// Relation
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/foreignKeys/<column:'.URL_MATCH.'>/update'=>'foreignKey/update',
+				// Relation
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/foreignKeys/<column:'.URL_MATCH.'>/update' => 'foreignKey/update',
 
-						// IndexActions
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/create'=>'index/create',
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/createSimple'=>'index/createSimple',
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/drop'=>'index/drop',
+				// IndexActions
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/create'                        => 'index/create',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/createSimple'                  => 'index/createSimple',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indexAction/drop'                          => 'index/drop',
 
-						// Index
-						'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indices/<index:'.URL_MATCH.'>/update'=>'index/update',
+				// Index
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/indices/<index:'.URL_MATCH.'>/update'      => 'index/update',
 
-						// TriggerActions
-						'schema/<schema:' . URL_MATCH . '>/tables/<table:' . URL_MATCH . '>/triggerAction/create' => 'trigger/create',
-						'schema/<schema:' . URL_MATCH . '>/tables/<table:' . URL_MATCH . '>/triggerAction/drop' => 'trigger/drop',
+				// TriggerActions
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/triggerAction/create'                      => 'trigger/create',
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/triggerAction/drop'                        => 'trigger/drop',
 
-						// Trigger
-						'schema/<schema:' . URL_MATCH . '>/tables/<table:' . URL_MATCH . '>/triggers/<trigger:' . URL_MATCH . '>/update' => 'trigger/update',
+				// Trigger
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/triggers/<trigger:'.URL_MATCH.'>/update'   => 'trigger/update',
 
-					// View actions
-					'schema/<schema:' . URL_MATCH . '>/viewAction/create' => 'view/create',
-					'schema/<schema:' . URL_MATCH . '>/viewAction/drop' => 'view/drop',
+				// View actions
+				'schema/<schema:'.URL_MATCH.'>/viewAction/create'                                                      => 'view/create',
+				'schema/<schema:'.URL_MATCH.'>/viewAction/drop'                                                        => 'view/drop',
 
-					// Views
-					'schema/<schema:' . URL_MATCH . '>/views/<view:' . URL_MATCH . '>/browse' => 'view/browse',
-					'schema/<schema:' . URL_MATCH . '>/views/<view:' . URL_MATCH . '>/structure' => 'view/structure',
-					'schema/<schema:' . URL_MATCH . '>/views/<view:' . URL_MATCH . '>/sql' => 'view/sql',
-					'schema/<schema:' . URL_MATCH . '>/views/<view:' . URL_MATCH . '>/search' => 'view/search',
-					'schema/<schema:' . URL_MATCH . '>/views/<table:' . URL_MATCH . '>/insert' => 'row/insert',
-					'schema/<schema:' . URL_MATCH . '>/views/<view:' . URL_MATCH . '>/update' => 'view/update',
+				// Views
+				'schema/<schema:'.URL_MATCH.'>/views/<view:'.URL_MATCH.'>/browse'                                      => 'view/browse',
+				'schema/<schema:'.URL_MATCH.'>/views/<view:'.URL_MATCH.'>/structure'                                   => 'view/structure',
+				'schema/<schema:'.URL_MATCH.'>/views/<view:'.URL_MATCH.'>/sql'                                         => 'view/sql',
+				'schema/<schema:'.URL_MATCH.'>/views/<view:'.URL_MATCH.'>/search'                                      => 'view/search',
+				'schema/<schema:'.URL_MATCH.'>/views/<table:'.URL_MATCH.'>/insert'                                     => 'row/insert',
+				'schema/<schema:'.URL_MATCH.'>/views/<view:'.URL_MATCH.'>/update'                                      => 'view/update',
 
-					// Routine actions
-					'schema/<schema:' . URL_MATCH . '>/routineAction/create' => 'routine/create',
-					'schema/<schema:' . URL_MATCH . '>/routineAction/drop' => 'routine/drop',
+				// Routine actions
+				'schema/<schema:'.URL_MATCH.'>/routineAction/create'                                                   => 'routine/create',
+				'schema/<schema:'.URL_MATCH.'>/routineAction/drop'                                                     => 'routine/drop',
 
-					// Routines
-					'schema/<schema:' . URL_MATCH . '>/routines/<routine:' . URL_MATCH . '>/update' => 'routine/update',
+				// Routines
+				'schema/<schema:'.URL_MATCH.'>/routines/<routine:'.URL_MATCH.'>/update'                                => 'routine/update',
 
-					// Row
-					'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/row/export'=>'row/export',
-            ),
-        ),
+				// Row
+				'schema/<schema:'.URL_MATCH.'>/tables/<table:'.URL_MATCH.'>/row/export'                                => 'row/export',
+			],
+		],
 
-        // View Renderer (template engine)
-        'viewRenderer' => array(
-            'class' => 'CPradoViewRenderer',
-        ),
+		// View Renderer (template engine)
+		'viewRenderer' => [
+			'class' => 'CPradoViewRenderer',
+		],
 
-	),
+	],
 
 	// application-level parameters
-	'params' => array(
+	'params'         => [
 		'iconPack' => 'fugue',
-		'version' => '1.3.1',
-	),
+		'version'  => '1.3.1',
+	],
 
 	// There is no source language ...
 	'sourceLanguage' => 'xxx',
-);
+];

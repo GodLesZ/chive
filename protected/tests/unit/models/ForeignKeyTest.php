@@ -24,32 +24,14 @@
 class ForeignKeyTest extends ChiveTestCase
 {
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/ForeignKeyTest.sql');
-
-		Column::$db =
-		ForeignKey::$db =
-		Index::$db =
-		Routine::$db =
-		Row::$db =
-		Schema::$db =
-		Table::$db =
-		Trigger::$db =
-		View::$db = $this->createDbConnection('tabletest');
-	}
-
-	/**
 	 * Tests some config
 	 */
 	public function testConfig()
 	{
 		$fk = new ForeignKey();
 
-		$this->assertType('string',$fk->tableName());
-		$this->assertType('array',$fk->primaryKey());
+		$this->assertType('string', $fk->tableName());
+		$this->assertType('array', $fk->primaryKey());
 	}
 
 	/**
@@ -57,41 +39,34 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testDelete()
 	{
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product_order',
-			'columnName' => 'customer_id'));
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
 		$this->assertNotNull($fk);
 
 		$this->assertType('string', $fk->delete());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product_order',
-			'columnName' => 'customer_id'));
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
 		$this->assertNull($fk);
 	}
-
 
 	/**
 	 * tries to insert a Foreignkey with Datatype int and varchar
 	 */
 	public function testOnUDRestrict()
 	{
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product';
+		$foreignKey->COLUMN_NAME  = 'fk';
 		$foreignKey->setReferences('tabletest.product_order.no');
 
 		$foreignKey->onUpdate = 'CASCADE';
@@ -99,17 +74,14 @@ class ForeignKeyTest extends ChiveTestCase
 
 		$this->assertType('string', $foreignKey->save());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product',
-			'columnName' => 'fk'));
+			'tableName'   => 'product',
+			'columnName'  => 'fk'
+		]);
 
 		$this->assertNotNull($fk);
-		$this->assertEquals('tabletest.product_order.no',$fk->getReferences());
+		$this->assertEquals('tabletest.product_order.no', $fk->getReferences());
 		$this->assertEquals('CASCADE', $fk->onUpdate);
 		$this->assertEquals('', $fk->onDelete);
 	}
@@ -119,10 +91,10 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testInsert()
 	{
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product';
+		$foreignKey->COLUMN_NAME  = 'fk';
 		$foreignKey->setReferences('tabletest.product_order.no');
 
 		$foreignKey->onUpdate = 'CASCADE';
@@ -130,24 +102,21 @@ class ForeignKeyTest extends ChiveTestCase
 
 		$this->assertType('string', $foreignKey->save());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product',
-			'columnName' => 'fk'));
+			'tableName'   => 'product',
+			'columnName'  => 'fk'
+		]);
 
 		$this->assertNotNull($fk);
-		$this->assertEquals('tabletest.product_order.no',$fk->getReferences());
+		$this->assertEquals('tabletest.product_order.no', $fk->getReferences());
 		$this->assertEquals('CASCADE', $fk->onUpdate);
 		$this->assertEquals('NO ACTION', $fk->onDelete);
 
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product3';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product3';
+		$foreignKey->COLUMN_NAME  = 'fk';
 		$foreignKey->setReferences('tabletest.product4.var');
 
 
@@ -155,26 +124,23 @@ class ForeignKeyTest extends ChiveTestCase
 		$foreignKey->onDelete = 'CASCADE';
 		$this->assertType('string', $foreignKey->save());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product3',
-			'columnName' => 'fk'));
+			'tableName'   => 'product3',
+			'columnName'  => 'fk'
+		]);
 
 		$this->assertNotNull($fk);
-		$this->assertEquals('tabletest.product4.var',$fk->getReferences());
+		$this->assertEquals('tabletest.product4.var', $fk->getReferences());
 		$this->assertEquals('NO ACTION', $fk->onUpdate);
 		$this->assertEquals('CASCADE', $fk->onDelete);
 
 
 		// add a foreignkey with on update and on delete with set null
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product5';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product5';
+		$foreignKey->COLUMN_NAME  = 'fk';
 		$foreignKey->setReferences('tabletest.product3.id');
 
 
@@ -182,17 +148,14 @@ class ForeignKeyTest extends ChiveTestCase
 		$foreignKey->onDelete = 'SET NULL';
 		$this->assertType('string', $foreignKey->save());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product5',
-			'columnName' => 'fk'));
+			'tableName'   => 'product5',
+			'columnName'  => 'fk'
+		]);
 
 		$this->assertNotNull($fk);
-		$this->assertEquals('tabletest.product3.id',$fk->getReferences());
+		$this->assertEquals('tabletest.product3.id', $fk->getReferences());
 		$this->assertEquals('SET NULL', $fk->onUpdate);
 		$this->assertEquals('SET NULL', $fk->onDelete);
 	}
@@ -202,19 +165,16 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testUpdate()
 	{
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product_order',
-			'columnName' => 'customer_id'));
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
 		$this->assertEquals('NO ACTION', $fk->onDelete);
 		$this->assertEquals('CASCADE', $fk->onUpdate);
 
-		$this->assertEquals('tabletest.customer.id',$fk->getReferences());
+		$this->assertEquals('tabletest.customer.id', $fk->getReferences());
 
 		$fk->setReferences('tabletest.product2.id');
 
@@ -224,16 +184,13 @@ class ForeignKeyTest extends ChiveTestCase
 
 		$this->assertType('string', $fk->update());
 
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
-			  'tableSchema' => 'tabletest',
-			  'tableName' => 'product_order',
-		      'columnName' => 'customer_id'));
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
+			'tableSchema' => 'tabletest',
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
-		$this->assertEquals('tabletest.product2.id',$fk->getReferences());
+		$this->assertEquals('tabletest.product2.id', $fk->getReferences());
 		$this->assertEquals('NO ACTION', $fk->onUpdate);
 		$this->assertEquals('CASCADE', $fk->onDelete);
 
@@ -241,14 +198,11 @@ class ForeignKeyTest extends ChiveTestCase
 		 * try to set a foreignkey with on update and
 		 * on delete on a column with propertie not null
 		 */
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
-			  'tableSchema' => 'tabletest',
-			  'tableName' => 'product_order',
-		      'columnName' => 'customer_id'));
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
+			'tableSchema' => 'tabletest',
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
 		$fk->onUpdate = 'SET NULL';
 		$fk->onDelete = 'SET NULL';
@@ -260,16 +214,13 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testUpdate2()
 	{
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product_order',
-			'columnName' => 'customer_id'));
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
-		$this->assertEquals('tabletest.customer.id',$fk->getReferences());
+		$this->assertEquals('tabletest.customer.id', $fk->getReferences());
 
 		//set wrong reference --> expect false as update() return value
 		$fk->setReferences('');
@@ -283,14 +234,11 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testInsertNotNew()
 	{
-		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '
-		. 'WHERE TABLE_SCHEMA = :tableSchema '
-		. 'AND TABLE_NAME = :tableName '
-		. 'AND COLUMN_NAME = :columnName '
-		. 'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', array(
+		$fk = ForeignKey::model()->findBySql('SELECT * FROM KEY_COLUMN_USAGE '.'WHERE TABLE_SCHEMA = :tableSchema '.'AND TABLE_NAME = :tableName '.'AND COLUMN_NAME = :columnName '.'AND REFERENCED_TABLE_SCHEMA IS NOT NULL', [
 			'tableSchema' => 'tabletest',
-			'tableName' => 'product_order',
-			'columnName' => 'customer_id'));
+			'tableName'   => 'product_order',
+			'columnName'  => 'customer_id'
+		]);
 
 		$fk->insert();
 	}
@@ -302,10 +250,10 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testUpdateIsNew()
 	{
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product';
+		$foreignKey->COLUMN_NAME  = 'fk';
 
 		$foreignKey->setReferences('tabletest.product_order.no');
 		$foreignKey->update();
@@ -318,10 +266,10 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testDeleteIsNew()
 	{
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product';
-		$foreignKey->COLUMN_NAME = 'fk';
+		$foreignKey->TABLE_NAME   = 'product';
+		$foreignKey->COLUMN_NAME  = 'fk';
 		$foreignKey->setReferences('tabletest.product_order.no');
 		$foreignKey->delete();
 	}
@@ -332,12 +280,22 @@ class ForeignKeyTest extends ChiveTestCase
 	 */
 	public function testInsertOnWrongDataType()
 	{
-		$foreignKey = new ForeignKey();
+		$foreignKey               = new ForeignKey();
 		$foreignKey->TABLE_SCHEMA = 'tabletest';
-		$foreignKey->TABLE_NAME = 'product3';
-		$foreignKey->COLUMN_NAME = 'price';
+		$foreignKey->TABLE_NAME   = 'product3';
+		$foreignKey->COLUMN_NAME  = 'price';
 		$foreignKey->setReferences('tabletest.product4.var');
 
 		$this->assertFalse($foreignKey->save());
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/ForeignKeyTest.sql');
+
+		Column::$db = ForeignKey::$db = Index::$db = Routine::$db = Row::$db = Schema::$db = Table::$db = Trigger::$db = View::$db = $this->createDbConnection('tabletest');
 	}
 }

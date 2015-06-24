@@ -43,17 +43,15 @@ class SchemaController extends Controller
 	 */
 	public $layout = 'schema';
 
-	public function __construct($id, $module=null)
+	public function __construct($id, $module = null)
 	{
-		$request = Yii::app()->getRequest();
+		$request      = Yii::app()->getRequest();
 		$this->schema = $request->getParam('schema');
 
-		if($request->isAjaxRequest && $this->schema && $request->pathInfo != 'schemata/update')
-		{
+		if ($request->isAjaxRequest && $this->schema && $request->pathInfo != 'schemata/update') {
 			$this->layout = '_schema';
 		}
-		elseif($request->isAjaxRequest)
-		{
+		elseif ($request->isAjaxRequest) {
 			$this->layout = false;
 		}
 
@@ -71,16 +69,34 @@ class SchemaController extends Controller
 		$this->loadSchema();
 
 		// Tables
-		$this->_schema->tables = Table::model()->findAll('TABLE_SCHEMA = :schema AND TABLE_TYPE IN (\'BASE TABLE\', \'SYSTEM VIEW\')', array(
+		$this->_schema->tables = Table::model()->findAll('TABLE_SCHEMA = :schema AND TABLE_TYPE IN (\'BASE TABLE\', \'SYSTEM VIEW\')', [
 			':schema' => $this->schema,
-		));
+		]);
 
 		// Views
-		$this->_schema->views = View::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => $this->schema,
-		));
+		$this->_schema->views = View::model()->findAllByAttributes([
+																	   'TABLE_SCHEMA' => $this->schema,
+																   ]);
 
 		$this->render('index');
+	}
+
+	/**
+	 * Loads the current schema.
+	 *
+	 * @return    Schema
+	 */
+	public function loadSchema()
+	{
+		if (is_null($this->_schema)) {
+			$this->_schema = Schema::model()->findByPk($this->schema);
+
+			if (is_null($this->_schema)) {
+				throw new CHttpException(500, 'The requested schema does not exist.');
+			}
+		}
+
+		return $this->_schema;
 	}
 
 	/**
@@ -91,29 +107,29 @@ class SchemaController extends Controller
 		$schema = $this->loadSchema();
 
 		// Criteria
-		$criteria = new CDbCriteria();
+		$criteria            = new CDbCriteria();
 		$criteria->condition = 'TABLE_SCHEMA = :schema AND TABLE_TYPE IN (\'BASE TABLE\', \'SYSTEM VIEW\')';
-		$criteria->params = array(
+		$criteria->params    = [
 			':schema' => $this->schema,
-		);
+		];
 
-		if($this->request->getParam('sideBar'))
-		{
-			$tables = array();
+		if ($this->request->getParam('sideBar')) {
+			$tables = [];
 
-			foreach(Table::model()->findAll($criteria) AS $table)
-			{
-				$tables[] = array(
-					'tableName' => $table->TABLE_NAME,
-					'rowCount' => $table->getRowCount(),
-					'rowCountText' => Yii::t('core', 'Xrows', array($table->getRowCount(), '{amount}' => $table->getRowCount())),
-				);
+			foreach (Table::model()->findAll($criteria) AS $table) {
+				$tables[] = [
+					'tableName'    => $table->TABLE_NAME,
+					'rowCount'     => $table->getRowCount(),
+					'rowCountText' => Yii::t('core', 'Xrows', [
+						$table->getRowCount(),
+						'{amount}' => $table->getRowCount()
+					]),
+				];
 			}
 
 			$this->sendJSON($tables);
 		}
-		else
-		{
+		else {
 
 			// Pagination
 			$pages = new Pagination(Table::model()->count($criteria));
@@ -122,28 +138,28 @@ class SchemaController extends Controller
 			$pages->route = '#tables';
 
 			// Sort
-			$sort = new CSort('Table');
-			$sort->attributes = array(
-				'name' => 'TABLE_NAME',
-				'rows' => 'TABLE_ROWS',
-				'collation' => 'TABLE_COLLATION',
-				'engine' => 'ENGINE',
+			$sort             = new CSort('Table');
+			$sort->attributes = [
+				'name'       => 'TABLE_NAME',
+				'rows'       => 'TABLE_ROWS',
+				'collation'  => 'TABLE_COLLATION',
+				'engine'     => 'ENGINE',
 				'datalength' => 'DATA_LENGTH',
-				'datafree' => 'DATA_FREE',
-			);
-			$sort->route = '#tables';
+				'datafree'   => 'DATA_FREE',
+			];
+			$sort->route      = '#tables';
 			$sort->applyOrder($criteria);
 
 			// Load data
 			$schema->tables = Table::model()->findAll($criteria);
 
 			// Render
-			$this->render('tables', array(
-				'schema' => $schema,
+			$this->render('tables', [
+				'schema'     => $schema,
 				'tableCount' => count($schema->tables),
-				'pages' => $pages,
-				'sort' => $sort,
-			));
+				'pages'      => $pages,
+				'sort'       => $sort,
+			]);
 		}
 	}
 
@@ -155,52 +171,49 @@ class SchemaController extends Controller
 		$schema = $this->loadSchema();
 
 		// Criteria
-		$criteria = new CDbCriteria;
+		$criteria            = new CDbCriteria;
 		$criteria->condition = 'TABLE_SCHEMA = :schema';
-		$criteria->params = array(
+		$criteria->params    = [
 			':schema' => $this->schema,
-		);
-		
-		if($this->request->getParam('sideBar'))
-		{
-			$views = array();
+		];
 
-			foreach(View::model()->findAll($criteria) AS $view)
-			{
-				$views[] = array(
+		if ($this->request->getParam('sideBar')) {
+			$views = [];
+
+			foreach (View::model()->findAll($criteria) AS $view) {
+				$views[] = [
 					'viewName' => $view->TABLE_NAME,
-				);
+				];
 			}
 
 			$this->sendJSON($views);
 		}
-		else
-		{
+		else {
 			// Pagination
 			$pages = new Pagination(View::model()->count($criteria));
 			$pages->setupPageSize('pageSize', 'schema.views');
 			$pages->applyLimit($criteria);
 			$pages->route = '#views';
-	
+
 			// Sort
-			$sort = new CSort('View');
-			$sort->attributes = array(
-				'name' => 'TABLE_NAME',
+			$sort             = new CSort('View');
+			$sort->attributes = [
+				'name'      => 'TABLE_NAME',
 				'updatable' => 'IS_UPDATABLE',
-			);
-			$sort->route = '#views';
+			];
+			$sort->route      = '#views';
 			$sort->applyOrder($criteria);
-	
+
 			// Load data
 			$schema->views = View::model()->findAll($criteria);
-	
+
 			// Render
-			$this->render('views', array(
-				'schema' => $schema,
+			$this->render('views', [
+				'schema'    => $schema,
 				'viewCount' => count($schema->views),
-				'pages' => $pages,
-				'sort' => $sort,
-			));
+				'pages'     => $pages,
+				'sort'      => $sort,
+			]);
 		}
 	}
 
@@ -212,11 +225,11 @@ class SchemaController extends Controller
 		$schema = $this->loadSchema();
 
 		// Criteria
-		$criteria = new CDbCriteria;
+		$criteria            = new CDbCriteria;
 		$criteria->condition = 'ROUTINE_SCHEMA = :schema';
-		$criteria->params = array(
+		$criteria->params    = [
 			':schema' => $this->schema,
-		);
+		];
 
 		// Pagination
 		$pages = new Pagination(Routine::model()->count($criteria));
@@ -225,43 +238,44 @@ class SchemaController extends Controller
 		$pages->route = '#routines';
 
 		// Sort
-		$sort = new CSort('View');
-		$sort->attributes = array(
+		$sort             = new CSort('View');
+		$sort->attributes = [
 			'ROUTINE_NAME' => 'name',
-		);
-		$sort->route = '#routines';
+		];
+		$sort->route      = '#routines';
 		$sort->applyOrder($criteria);
 
 		// Load data
 		$schema->routines = Routine::model()->findAll($criteria);
 
 		// Render
-		$this->render('routines', array(
-			'schema' => $schema,
+		$this->render('routines', [
+			'schema'       => $schema,
 			'routineCount' => count($schema->routines),
-			'pages' => $pages,
-			'sort' => $sort,
-		));
+			'pages'        => $pages,
+			'sort'         => $sort,
+		]);
 	}
 
-	public function actionSql($_query = false, $_execute = true) {
+	public function actionSql($_query = false, $_execute = true)
+	{
 
 		$query = Yii::app()->getRequest()->getParam('query');
 
 		$browsePage = new BrowsePage();
 
-		$browsePage->schema = $this->schema;
-		$browsePage->db = $this->db;
-		$browsePage->query = $query;
-		$browsePage->route = 'schema/' . $this->schema . '/sql';
-		$browsePage->formTarget = 'schema/' . $this->schema . '/sql';
-		$browsePage->execute = (bool)$query;
+		$browsePage->schema     = $this->schema;
+		$browsePage->db         = $this->db;
+		$browsePage->query      = $query;
+		$browsePage->route      = 'schema/'.$this->schema.'/sql';
+		$browsePage->formTarget = 'schema/'.$this->schema.'/sql';
+		$browsePage->execute    = (bool)$query;
 
 		$browsePage->run();
 
-		$this->render('../global/browse', array(
+		$this->render('../global/browse', [
 			'model' => $browsePage
-		));
+		]);
 
 	}
 
@@ -271,31 +285,26 @@ class SchemaController extends Controller
 	public function actionCreate()
 	{
 		$schema = new Schema;
-		if(isset($_POST['Schema']))
-		{
+		if (isset($_POST['Schema'])) {
 			$schema->attributes = $_POST['Schema'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAddSchema', array('{schema}' => $schema->SCHEMA_NAME)),
-					null,
-					$sql);
+				$response->addNotification('success', Yii::t('core', 'successAddSchema', ['{schema}' => $schema->SCHEMA_NAME]), null, $sql);
 				$response->refresh = true;
 				$response->executeJavaScript('sideBar.loadSchemata()');
 				$this->sendJSON($response);
 			}
 		}
 
-		$collations = Collation::model()->findAll(array(
-			'order' => 'COLLATION_NAME',
-			'select'=> 'COLLATION_NAME, CHARACTER_SET_NAME AS collationGroup'
-		));
+		$collations = Collation::model()->findAll([
+													  'order'  => 'COLLATION_NAME',
+													  'select' => 'COLLATION_NAME, CHARACTER_SET_NAME AS collationGroup'
+												  ]);
 
-		$this->render('form', array(
-			'schema' => $schema,
+		$this->render('form', [
+			'schema'     => $schema,
 			'collations' => $collations,
-		));
+		]);
 	}
 
 	/**
@@ -306,28 +315,26 @@ class SchemaController extends Controller
 	public function actionUpdate()
 	{
 		$isSubmitted = false;
-		$sql = null;
-		$schema = $this->loadSchema();
-		if(isset($_POST['Schema']))
-		{
+		$sql         = null;
+		$schema      = $this->loadSchema();
+		if (isset($_POST['Schema'])) {
 			$schema->attributes = $_POST['Schema'];
-			if($sql = $schema->save())
-			{
+			if ($sql = $schema->save()) {
 				$isSubmitted = true;
 			}
 		}
 
-		$collations = Collation::model()->findAll(array(
-			'order' => 'COLLATION_NAME',
-			'select'=>'COLLATION_NAME, CHARACTER_SET_NAME AS collationGroup'
-		));
+		$collations = Collation::model()->findAll([
+													  'order'  => 'COLLATION_NAME',
+													  'select' => 'COLLATION_NAME, CHARACTER_SET_NAME AS collationGroup'
+												  ]);
 
-		$this->render('form', array(
-			'schema' => $schema,
-			'collations' => $collations,
+		$this->render('form', [
+			'schema'      => $schema,
+			'collations'  => $collations,
 			'isSubmitted' => $isSubmitted,
-			'sql' => $sql,
-		));
+			'sql'         => $sql,
+		]);
 	}
 
 	/**
@@ -335,40 +342,34 @@ class SchemaController extends Controller
 	 */
 	public function actionDrop()
 	{
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
 		$response->executeJavaScript('sideBar.loadSchemata()');
-		$schemata = (array)$_POST['schemata'];
-		$droppedSchemata = $droppedSqls = array();
+		$schemata        = (array)$_POST['schemata'];
+		$droppedSchemata = $droppedSqls = [];
 
 		Schema::$db = Yii::app()->getDb();
 
-		foreach($schemata AS $schema)
-		{
-			$schemaObj = Schema::model()->findByPk($schema);
+		foreach ($schemata AS $schema) {
+			$schemaObj                  = Schema::model()->findByPk($schema);
 			$schemaObj->throwExceptions = true;
-			try
-			{
-				$sql = $schemaObj->delete();
+			try {
+				$sql               = $schemaObj->delete();
 				$droppedSchemata[] = $schema;
-				$droppedSqls[] = $sql;
+				$droppedSqls[]     = $sql;
 			}
-			catch(DbException $ex)
-			{
-				$response->addNotification('error',
-					Yii::t('core', 'errorDropSchema', array('{schema}' => $schema)),
-					$ex->getText(),
-					$ex->getSql());
+			catch (DbException $ex) {
+				$response->addNotification('error', Yii::t('core', 'errorDropSchema', ['{schema}' => $schema]), $ex->getText(), $ex->getSql());
 			}
 		}
 
 		$count = count($droppedSchemata);
-		if($count > 0)
-		{
-			$response->addNotification('success',
-				Yii::t('core', 'successDropSchema', array($count, '{schema}' => $droppedSchemata[0], '{schemaCount}' => $count)),
-				($count > 1 ? implode(', ', $droppedSchemata) : null),
-				implode("\n", $droppedSqls));
+		if ($count > 0) {
+			$response->addNotification('success', Yii::t('core', 'successDropSchema', [
+				$count,
+				'{schema}'      => $droppedSchemata[0],
+				'{schemaCount}' => $count
+			]), ($count > 1 ? implode(', ', $droppedSchemata) : null), implode("\n", $droppedSqls));
 		}
 
 		$this->sendJSON($response);
@@ -380,20 +381,17 @@ class SchemaController extends Controller
 	public function actionList()
 	{
 		// Create list for sideBar usage
-		if($this->request->getParam('sideBar'))
-		{
-			$schemata = array();
+		if ($this->request->getParam('sideBar')) {
+			$schemata = [];
 
-			foreach(Schema::model()->findAll() AS $schema)
-			{
+			foreach (Schema::model()->findAll() AS $schema) {
 				$schemata[] = $schema->SCHEMA_NAME;
 			}
 
 			$this->sendJSON($schemata);
 		}
 		// Show the page
-		else
-		{
+		else {
 			$criteria = new CDbCriteria();
 
 			// Pagination
@@ -403,52 +401,32 @@ class SchemaController extends Controller
 			$pages->route = '#schemata';
 
 			// Sort
-			$sort = new CSort('Schema');
-			$sort->attributes = array(
-				'name' => 'SCHEMA_NAME',
+			$sort               = new CSort('Schema');
+			$sort->attributes   = [
+				'name'       => 'SCHEMA_NAME',
 				'tableCount' => 'tableCount',
-				'collation' => 'DEFAULT_COLLATION_NAME',
-			);
+				'collation'  => 'DEFAULT_COLLATION_NAME',
+			];
 			$sort->defaultOrder = 'SCHEMA_NAME ASC';
-			$sort->route = '#schemata';
+			$sort->route        = '#schemata';
 			$sort->applyOrder($criteria);
 
-			$criteria->group = 'SCHEMA_NAME';
+			$criteria->group  = 'SCHEMA_NAME';
 			$criteria->select = 'SCHEMA_NAME, DEFAULT_COLLATION_NAME, COUNT(*) AS tableCount';
 
-			$schemaList = Schema::model()->with(array(
-				'tables' => array('select' => 'COUNT(tables.TABLE_NAME) AS tableCount'),
-			))->together()->findAll($criteria);
+			$schemaList = Schema::model()->with([
+													'tables' => ['select' => 'COUNT(tables.TABLE_NAME) AS tableCount'],
+												])->together()->findAll($criteria);
 
-			$this->render('list',array(
-				'schemaList' => $schemaList,
-				'schemaCount' => $pages->getItemCount(),
+			$this->render('list', [
+				'schemaList'          => $schemaList,
+				'schemaCount'         => $pages->getItemCount(),
 				'schemaCountThisPage' => min($pages->getPageSize(), $pages->getItemCount() - $pages->getCurrentPage() * $pages->getPageSize()),
-				'pages' => $pages,
-				'sort' => $sort,
-			));
+				'pages'               => $pages,
+				'sort'                => $sort,
+			]);
 		}
 	}
-
-	/**
-	 * Loads the current schema.
-	 *
-	 * @return	Schema
-	 */
-	public function loadSchema()
-	{
-		if(is_null($this->_schema))
-		{
-			$this->_schema = Schema::model()->findByPk($this->schema);
-
-			if(is_null($this->_schema))
-			{
-				throw new CHttpException(500, 'The requested schema does not exist.');
-			}
-		}
-		return $this->_schema;
-	}
-
 
 	/**
 	 * Bookmark actions
@@ -456,24 +434,24 @@ class SchemaController extends Controller
 	public function actionShowBookmark()
 	{
 
-		$id = Yii::app()->getRequest()->getParam('id');
+		$id       = Yii::app()->getRequest()->getParam('id');
 		$bookmark = Yii::app()->user->settings->get('bookmarks', 'database', $this->schema, 'id', $id);
-		$query = Yii::app()->getRequest()->getParam('query');
+		$query    = Yii::app()->getRequest()->getParam('query');
 
 		$browsePage = new BrowsePage();
 
-		$browsePage->schema = $this->schema;
-		$browsePage->db = $this->db;
-		$browsePage->query = !$query ? $bookmark['query'] : $query;
-		$browsePage->route = 'schema/' . $this->schema . '/bookmark/show/' . $id;
-		$browsePage->formTarget = 'schema/' . $this->schema . '/bookmark/show/' . $id;
-		$browsePage->execute = true;
+		$browsePage->schema     = $this->schema;
+		$browsePage->db         = $this->db;
+		$browsePage->query      = !$query ? $bookmark['query'] : $query;
+		$browsePage->route      = 'schema/'.$this->schema.'/bookmark/show/'.$id;
+		$browsePage->formTarget = 'schema/'.$this->schema.'/bookmark/show/'.$id;
+		$browsePage->execute    = true;
 
 		$browsePage->run();
 
-		$this->render('../global/browse', array(
+		$this->render('../global/browse', [
 			'model' => $browsePage
-		));
+		]);
 
 	}
 
@@ -485,32 +463,30 @@ class SchemaController extends Controller
 		$exportPage = new ExportPage('objects', $this->schema);
 		$exportPage->run();
 
-		$this->render('../global/export', array(
+		$this->render('../global/export', [
 			'model' => $exportPage,
-		));
+		]);
 	}
 
 	public function actionImport()
 	{
 
-		$importPage = new ImportPage();
-		$importPage->db = $this->db;
-		$importPage->schema = $this->schema;
-		$importPage->formTarget = Yii::app()->urlManager->baseUrl . '/schema/' . $this->schema . '/import';
+		$importPage             = new ImportPage();
+		$importPage->db         = $this->db;
+		$importPage->schema     = $this->schema;
+		$importPage->formTarget = Yii::app()->urlManager->baseUrl.'/schema/'.$this->schema.'/import';
 
 		$res = $importPage->run();
 
-		if($res instanceof AjaxResponse)
-		{
+		if ($res instanceof AjaxResponse) {
 			$this->sendJSON($res);
 		}
-		else
-		{
+		else {
 			$this->layout = '_schema';
 
-			$this->render('../global/import', array(
+			$this->render('../global/import', [
 				'model' => $importPage,
-			));
+			]);
 		}
 	}
 

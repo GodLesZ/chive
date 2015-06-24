@@ -25,17 +25,18 @@ class AssetController extends Controller
 
     public function accessRules()
     {
-        return array(
-            array('allow',
-                'actions' => array('default'),
-                'users' => array('*'),
-            ),
-        );
+        return [
+            [
+                'allow',
+                'actions' => ['default'],
+                'users'   => ['*'],
+            ],
+        ];
     }
 
     public function actionDefault()
     {
-        $assetPath = Yii::app()->assetManager->basePath . DIRECTORY_SEPARATOR . Yii::app()->request->getParam("path");
+        $assetPath = Yii::app()->assetManager->basePath.DIRECTORY_SEPARATOR.Yii::app()->request->getParam("path");
         readfile($assetPath);
         Yii::app()->end();
     }

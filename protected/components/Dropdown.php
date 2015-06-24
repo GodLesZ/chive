@@ -25,19 +25,20 @@ class Dropdown extends CWidget
 {
 	public $htmlOptions;
 
-	public $items=array();
+	public $items = [];
 
-	public function run() {
+	public function run()
+	{
 
-		$items = array();
-		foreach($this->items AS $item) {
+		$items = [];
+		foreach ($this->items AS $item) {
 			$items[] = $item;
 		}
 
-		$this->render('dropdown', array(
-			'items'=>$items,
-			'htmlOptions'=>$this->htmlOptions,
-		));
+		$this->render('dropdown', [
+			'items'       => $items,
+			'htmlOptions' => $this->htmlOptions,
+		]);
 	}
 
 }

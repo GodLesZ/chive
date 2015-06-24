@@ -26,10 +26,10 @@ class Schema extends ActiveRecord
 
 	public $tableCount;
 	public $DEFAULT_CHARACTER_SET_NAME = Collation::DEFAULT_CHARACTER_SET;
-	public $DEFAULT_COLLATION_NAME = Collation::DEFAULT_COLLATION;
+	public $DEFAULT_COLLATION_NAME     = Collation::DEFAULT_COLLATION;
 
 	/**
-	 * @see		ActiveRecord::model()
+	 * @see        ActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -37,7 +37,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::tableName()
+	 * @see        ActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -45,7 +45,7 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::primaryKey()
+	 * @see        ActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
@@ -53,65 +53,88 @@ class Schema extends ActiveRecord
 	}
 
 	/**
-	 * @see		ActiveRecord::rules()
+	 * @see        ActiveRecord::rules()
 	 */
 	public function rules()
 	{
-		return array(
-			array('SCHEMA_NAME', 'type', 'type' => 'string'),
-			array('DEFAULT_COLLATION_NAME', 'type', 'type' => 'string'),
-		);
+		return [
+			[
+				'SCHEMA_NAME',
+				'type',
+				'type' => 'string'
+			],
+			[
+				'DEFAULT_COLLATION_NAME',
+				'type',
+				'type' => 'string'
+			],
+		];
 	}
 
 	/**
-	 * @see		ActiveRecord::relations()
+	 * @see        ActiveRecord::relations()
 	 */
 	public function relations()
 	{
-		return array(
-			'tables' => array(self::HAS_MANY, 'Table', 'TABLE_SCHEMA', 'condition' => 'tables.TABLE_TYPE IS NULL OR tables.TABLE_TYPE NOT IN (\'VIEW\')'),
-			'views' => array(self::HAS_MANY, 'View', 'TABLE_SCHEMA'),
-			'collation' => array(self::BELONGS_TO, 'Collation', 'DEFAULT_COLLATION_NAME'),
-			'routines' => array(self::HAS_MANY, 'Routine', 'ROUTINE_SCHEMA'),
-		);
+		return [
+			'tables'    => [
+				self::HAS_MANY,
+				'Table',
+				'TABLE_SCHEMA',
+				'condition' => 'tables.TABLE_TYPE IS NULL OR tables.TABLE_TYPE NOT IN (\'VIEW\')'
+			],
+			'views'     => [
+				self::HAS_MANY,
+				'View',
+				'TABLE_SCHEMA'
+			],
+			'collation' => [
+				self::BELONGS_TO,
+				'Collation',
+				'DEFAULT_COLLATION_NAME'
+			],
+			'routines'  => [
+				self::HAS_MANY,
+				'Routine',
+				'ROUTINE_SCHEMA'
+			],
+		];
 	}
 
 	/**
-	 * @see		ActiveRecord::attributeLabels()
+	 * @see        ActiveRecord::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
-		return array(
-			'SCHEMA_NAME' => Yii::t('core', 'name'),
+		return [
+			'SCHEMA_NAME'            => Yii::t('core', 'name'),
 			'DEFAULT_COLLATION_NAME' => Yii::t('core', 'collation'),
-			'tableCount' => Yii::t('core', 'tables'),
-		);
+			'tableCount'             => Yii::t('core', 'tables'),
+		];
 	}
 
 	/**
-	 * @see		ActiveRecord::getUpdateSql()
+	 * @see        ActiveRecord::getUpdateSql()
 	 */
 	protected function getUpdateSql()
 	{
-		return 'ALTER DATABASE ' . self::$db->quoteTableName($this->SCHEMA_NAME) . "\n"
-			. "\t" . 'DEFAULT COLLATE = ' . self::$db->quoteValue($this->DEFAULT_COLLATION_NAME) . ';';
+		return 'ALTER DATABASE '.self::$db->quoteTableName($this->SCHEMA_NAME)."\n"."\t".'DEFAULT COLLATE = '.self::$db->quoteValue($this->DEFAULT_COLLATION_NAME).';';
 	}
 
 	/**
-	 * @see		ActiveRecord::getInsertSql()
+	 * @see        ActiveRecord::getInsertSql()
 	 */
 	protected function getInsertSql()
 	{
-		return 'CREATE DATABASE ' . self::$db->quoteTableName($this->SCHEMA_NAME) . "\n"
-			. "\t" . 'DEFAULT COLLATE = ' . self::$db->quoteValue($this->DEFAULT_COLLATION_NAME) . ';';
+		return 'CREATE DATABASE '.self::$db->quoteTableName($this->SCHEMA_NAME)."\n"."\t".'DEFAULT COLLATE = '.self::$db->quoteValue($this->DEFAULT_COLLATION_NAME).';';
 	}
 
 	/**
-	 * @see		ActiveRecord::getDeleteSql()
+	 * @see        ActiveRecord::getDeleteSql()
 	 */
 	protected function getDeleteSql()
 	{
-		return 'DROP DATABASE ' . self::$db->quoteTableName($this->SCHEMA_NAME) . ';';
+		return 'DROP DATABASE '.self::$db->quoteTableName($this->SCHEMA_NAME).';';
 	}
 
 }

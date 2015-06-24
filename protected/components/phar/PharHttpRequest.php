@@ -24,11 +24,11 @@ class PharHttpRequest extends ChiveHttpRequest
 {
     public function getScriptUrl()
     {
-        return parent::getScriptUrl() . "/index.php";
+        return parent::getScriptUrl()."/index.php";
     }
 
     public function getScriptFile()
     {
-        return "phar://" . parent::getScriptFile() . DIRECTORY_SEPARATOR . "index.php";
+        return "phar://".parent::getScriptFile().DIRECTORY_SEPARATOR."index.php";
     }
 }

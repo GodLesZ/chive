@@ -29,17 +29,12 @@ class UserSettingsManagerTest extends CTestCase
 
 	protected $mgr;
 
-	protected function setUp()
-	{
-		$this->mgr = new UserSettingsManager(self::$host, self::$user);
-	}
-
 	/**
 	 * Tests getting and setting of settings.
 	 */
 	public function testSettings()
 	{
-		$rand = mt_rand(0, 300);
+		$rand  = mt_rand(0, 300);
 		$rand2 = mt_rand(0, 300);
 
 		// Read default setting
@@ -59,8 +54,11 @@ class UserSettingsManagerTest extends CTestCase
 		$this->assertEquals($rand, $this->mgr->get('pageSize', 'schema.tables', 'project_com2date'));
 
 		// Set array
-		$this->mgr->set('pageSize', array($rand, $rand2), 'schema.tables');
-		$this->assertEquals('a:2:{i:0;i:' . $rand . ';i:1;i:' . $rand2 . ';}', serialize($this->mgr->get('pageSize', 'schema.tables')));
+		$this->mgr->set('pageSize', [
+			$rand,
+			$rand2
+		], 'schema.tables');
+		$this->assertEquals('a:2:{i:0;i:'.$rand.';i:1;i:'.$rand2.';}', serialize($this->mgr->get('pageSize', 'schema.tables')));
 	}
 
 	/**
@@ -115,12 +113,15 @@ class UserSettingsManagerTest extends CTestCase
 	{
 		// Create random value
 		$random = md5(microtime());
-		$rand = mt_rand(0, 300);
-		$rand2 = mt_rand(0, 300);
+		$rand   = mt_rand(0, 300);
+		$rand2  = mt_rand(0, 300);
 
 		// Set value and save settings
 		$this->mgr->set('sidebarState', $random);
-		$this->mgr->set('pageSize', array($rand, $rand2), 'schema.tables');
+		$this->mgr->set('pageSize', [
+			$rand,
+			$rand2
+		], 'schema.tables');
 		$this->mgr->saveSettings();
 
 		// Create another manager instance
@@ -128,39 +129,44 @@ class UserSettingsManagerTest extends CTestCase
 
 		// Compare values
 		$this->assertEquals($random, $mgr->get('sidebarState'));
-		$this->assertEquals('a:2:{i:0;i:' . $rand . ';i:1;i:' . $rand2 . ';}', serialize($this->mgr->get('pageSize', 'schema.tables')));
+		$this->assertEquals('a:2:{i:0;i:'.$rand.';i:1;i:'.$rand2.';}', serialize($this->mgr->get('pageSize', 'schema.tables')));
 	}
-	
+
 	/**
 	 * test if the getJsObject method returns the correct values
 	 */
 	public function testGetJsObject()
 	{
-		$this->assertType('string',$this->mgr->getJsObject());	
+		$this->assertType('string', $this->mgr->getJsObject());
 	}
-	
+
 	public function testArray()
 	{
-		$bookmarks = array(
-			array(
-				'id' => 1,
-				'name' => 'Bookmark 1', 
+		$bookmarks = [
+			[
+				'id'    => 1,
+				'name'  => 'Bookmark 1',
 				'query' => 'select bla ...',
-			),
-			array(
-				'id' => 2,
-				'name' => 'Bookmark 2',
+			],
+			[
+				'id'    => 2,
+				'name'  => 'Bookmark 2',
 				'query' => 'select bla2 ...',
-			),
-		);
-		
+			],
+		];
+
 		$mgr = new UserSettingsManager(self::$host, self::$user);
-		
+
 		$mgr->set('bookmarks', $bookmarks, 'database', 'test');
-		$this->assertType('array',$mgr->get('bookmarks', 'database', 'test', 'id', 1));
-		$this->assertEquals(3,count($mgr->get('bookmarks', 'database', 'test', 'id', 1)));
+		$this->assertType('array', $mgr->get('bookmarks', 'database', 'test', 'id', 1));
+		$this->assertEquals(3, count($mgr->get('bookmarks', 'database', 'test', 'id', 1)));
 		$this->assertFalse($mgr->get('bookmarks', 'database', 'test', 'id', 3));
-		
+
+	}
+
+	protected function setUp()
+	{
+		$this->mgr = new UserSettingsManager(self::$host, self::$user);
 	}
 
 }

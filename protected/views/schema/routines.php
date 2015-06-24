@@ -6,7 +6,7 @@
 <div class="list">
 	<div class="buttonContainer">
 		<div class="left">
-			<?php $this->widget('LinkPager', array('pages' => $pages)); ?>
+			<?php $this->widget('LinkPager', ['pages' => $pages]); ?>
 		</div>
 		<div class="right">
 			<a href="javascript:void(0)" class="icon button" onclick="schemaRoutines.addProcedure()">
@@ -28,52 +28,58 @@
 			<col class="action" />
 		</colgroup>
 		<thead>
-			<tr>
-				<th><input type="checkbox" /></th>
-				<th colspan="3"><?php echo $sort->link('ROUTINE_NAME', Yii::t('core', 'routine')); ?></th>
-			</tr>
+		<tr>
+			<th><input type="checkbox" /></th>
+			<th colspan="3"><?php echo $sort->link('ROUTINE_NAME', Yii::t('core', 'routine')); ?></th>
+		</tr>
 		</thead>
 		<tbody>
-			<?php if($routineCount < 1) { ?>
-				<tr>
-					<td class="noEntries" colspan="4">
-						<?php echo Yii::t('core', 'noRoutines'); ?>
-					</td>
-				</tr>
-			<?php } ?>
-			<?php foreach($schema->routines AS $routine) { ?>
-				<tr id="routines_<?php echo $routine->ROUTINE_NAME; ?>">
-					<td>
-						<input type="checkbox" name="routines[]" value="<?php echo $routine->ROUTINE_NAME; ?>" />
-					</td>
-					<td>
+		<?php if ($routineCount < 1) { ?>
+			<tr>
+				<td class="noEntries" colspan="4">
+					<?php echo Yii::t('core', 'noRoutines'); ?>
+				</td>
+			</tr>
+		<?php } ?>
+		<?php foreach ($schema->routines AS $routine) { ?>
+			<tr id="routines_<?php echo $routine->ROUTINE_NAME; ?>">
+				<td>
+					<input type="checkbox" name="routines[]" value="<?php echo $routine->ROUTINE_NAME; ?>" />
+				</td>
+				<td>
 						<span class="icon">
-							<?php if($routine->ROUTINE_TYPE == 'PROCEDURE') { ?>
+							<?php if ($routine->ROUTINE_TYPE == 'PROCEDURE') { ?>
 								<?php echo Html::icon('procedure', 16, false, 'core.procedure'); ?>
-							<?php } else { ?>
+							<?php }
+							else { ?>
 								<?php echo Html::icon('function', 16, false, 'core.function'); ?>
 							<?php } ?>
 							<?php echo $routine->ROUTINE_NAME; ?>
 						</span>
-					</td>
-					<td>
-						<a href="javascript:void(0);" onclick="schemaRoutines.editRoutine($(this).closest('tr').attr('id').substr(9))" class="icon">
-							<?php echo Html::icon('edit', 16, false, 'core.edit'); ?>
-						</a>
-					</td>
-					<td>
-						<a href="javascript:void(0);" onclick="schemaRoutines.dropRoutine($(this).closest('tr').attr('id').substr(9))" class="icon">
-							<?php echo Html::icon('delete', 16, false, 'core.drop'); ?>
-						</a>
-					</td>
-				</tr>
-			<?php } ?>
+				</td>
+				<td>
+					<a href="javascript:void(0);"
+					   onclick="schemaRoutines.editRoutine($(this).closest('tr').attr('id').substr(9))" class="icon">
+						<?php echo Html::icon('edit', 16, false, 'core.edit'); ?>
+					</a>
+				</td>
+				<td>
+					<a href="javascript:void(0);"
+					   onclick="schemaRoutines.dropRoutine($(this).closest('tr').attr('id').substr(9))" class="icon">
+						<?php echo Html::icon('delete', 16, false, 'core.drop'); ?>
+					</a>
+				</td>
+			</tr>
+		<?php } ?>
 		</tbody>
 		<tfoot>
-			<tr>
-				<th><input type="checkbox" /></th>
-				<th colspan="3"><?php echo Yii::t('core', 'amountRoutines', array($routineCount, '{amount} '=> $routineCount)); ?></th>
-			</tr>
+		<tr>
+			<th><input type="checkbox" /></th>
+			<th colspan="3"><?php echo Yii::t('core', 'amountRoutines', [
+					$routineCount,
+					'{amount} ' => $routineCount
+				]); ?></th>
+		</tr>
 		</tfoot>
 	</table>
 
@@ -103,7 +109,8 @@
 </div>
 
 <script type="text/javascript">
-setTimeout(function() {
-	schemaRoutines.setupDialogs();
-}, 500);
+	setTimeout(function ()
+	{
+		schemaRoutines.setupDialogs();
+	}, 500);
 </script>

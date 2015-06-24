@@ -24,12 +24,12 @@
 class SiteController extends Controller
 {
 
-	public function __construct($id, $module=null) {
+	public function __construct($id, $module = null)
+	{
 
 		$request = Yii::app()->getRequest();
 
-		if($request->isAjaxRequest)
-		{
+		if ($request->isAjaxRequest) {
 			$this->layout = false;
 		}
 
@@ -42,25 +42,32 @@ class SiteController extends Controller
 	 */
 	public function filters()
 	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-		);
+		return [
+			'accessControl',
+			// perform access control for CRUD operations
+		];
 	}
 
 	/**
-	 * @see		CController::accessRules()
+	 * @see        CController::accessRules()
 	 */
 	public function accessRules()
 	{
-		return array(
-			array('allow',
-				'actions' => array('login', 'changeLanguage', 'changeTheme'),
-				'users' => array('*'),
-			),
-			array('deny',
-				'users' => array('?'),
-			),
-		);
+		return [
+			[
+				'allow',
+				'actions' => [
+					'login',
+					'changeLanguage',
+					'changeTheme'
+				],
+				'users'   => ['*'],
+			],
+			[
+				'deny',
+				'users' => ['?'],
+			],
+		];
 	}
 
 	/**
@@ -69,31 +76,27 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-        if(Yii::app()->getUrlManager()->showScriptName)
-        {
-            $scriptUrl = basename($_SERVER['SCRIPT_NAME']);
-            if(strpos($_SERVER['REQUEST_URI'], $scriptUrl) === false)
-            {
-                header("location: index.php");
-            }
-        }
+		if (Yii::app()->getUrlManager()->showScriptName) {
+			$scriptUrl = basename($_SERVER['SCRIPT_NAME']);
+			if (strpos($_SERVER['REQUEST_URI'], $scriptUrl) === false) {
+				header("location: index.php");
+			}
+		}
 
-		$entries = array();
+		$entries = [];
 
-		if(ConfigUtil::getUrlFopen())
-		{
+		if (ConfigUtil::getUrlFopen()) {
 			$xml = @simplexml_load_file('http://feeds.launchpad.net/chive/announcements.atom');
 
-			if($xml != null)
-			{
+			if ($xml != null) {
 				$entries = $xml->entry;
 			}
 		}
 
-		$this->render('index', array(
-			'entries' => $entries,
+		$this->render('index', [
+			'entries'   => $entries,
 			'formatter' => Yii::app()->getDateFormatter()
-		));
+		]);
 	}
 
 	/**
@@ -104,108 +107,98 @@ class SiteController extends Controller
 		$this->layout = "login";
 
 		// Languages
-        $languages = array();
-        $files = opendir(Yii::app()->basePath . DIRECTORY_SEPARATOR . 'messages');
-        while($file = readdir($files))
-        {
-            if(preg_match("/^\w\w(_\w\w)?$/", $file))
-            {
-                $languages[] = array(
-                    'label' => Yii::t('language', $file),
-                    'icon' => 'images/language/' . $file . '.png',
-                    'url' => Yii::app()->createUrl('/site/changeLanguage/' . $file),
-                    'htmlOptions' => array('class'=>'icon'),
-                );
-            }
-        }
+		$languages = [];
+		$files     = opendir(Yii::app()->basePath.DIRECTORY_SEPARATOR.'messages');
+		while ($file = readdir($files)) {
+			if (preg_match("/^\w\w(_\w\w)?$/", $file)) {
+				$languages[] = [
+					'label'       => Yii::t('language', $file),
+					'icon'        => 'images/language/'.$file.'.png',
+					'url'         => Yii::app()->createUrl('/site/changeLanguage/'.$file),
+					'htmlOptions' => ['class' => 'icon'],
+				];
+			}
+		}
 
 		$currentLanguage = Yii::app()->getLanguage();
-		if(strlen($currentLanguage) == 2)
-		{
-			$currentLanguage .= '_' . $currentLanguage;
+		if (strlen($currentLanguage) == 2) {
+			$currentLanguage .= '_'.$currentLanguage;
 		}
 
 		$availableThemes = Yii::app()->getThemeManager()->getThemeNames();
-		$activeTheme = Yii::app()->getTheme()->getName();
+		$activeTheme     = Yii::app()->getTheme()->getName();
 
-		$themes = array();
-		foreach($availableThemes AS $theme) {
+		$themes = [];
+		foreach ($availableThemes AS $theme) {
 
-			if($activeTheme == $theme)
+			if ($activeTheme == $theme) {
 				continue;
+			}
 
-			$themes[] = array(
-				'label'=> ucfirst($theme),
-				'icon'=> '/themes/' . $theme . '/images/icon.png',
-				'url'=>Yii::app()->request->baseUrl . '/site/changeTheme/' . $theme,
-				'htmlOptions'=>array('class'=>'icon'),
-			);
+			$themes[] = [
+				'label'       => ucfirst($theme),
+				'icon'        => '/themes/'.$theme.'/images/icon.png',
+				'url'         => Yii::app()->request->baseUrl.'/site/changeTheme/'.$theme,
+				'htmlOptions' => ['class' => 'icon'],
+			];
 		}
 
 		// Hosts
-		$hosts = array(
-			'web'=>'web',
-			'localhost'=>'localhost',
-			'127.0.0.1'=>'127.0.0.1',
-		);
+		$hosts = [
+			'web'       => 'web',
+			'localhost' => 'localhost',
+			'127.0.0.1' => '127.0.0.1',
+		];
 
 		$form = new LoginForm();
 		// collect user input data
 		$request = Yii::app()->getRequest();
-		if($request->isPostRequest || ($request->getQuery("host") !== null && $request->getQuery("username") !== null))
-		{
-			if($request->isPostRequest)
-			{
-				$form->attributes = array(
-					"host" => $request->getPost("host"),
-					"port" => $request->getPost("port"),
+		if ($request->isPostRequest || ($request->getQuery("host") !== null && $request->getQuery("username") !== null)) {
+			if ($request->isPostRequest) {
+				$form->attributes = [
+					"host"     => $request->getPost("host"),
+					"port"     => $request->getPost("port"),
 					"username" => $request->getPost("username"),
 					"password" => $request->getPost("password")
-				);
+				];
 
 				$form->redirectUrl = $request->getPost("redirectUrl");
 			}
-			else
-			{
-				$form->attributes = array(
-					"host" => $request->getQuery("host"),
-					"port" => $request->getPost("port"),
+			else {
+				$form->attributes = [
+					"host"     => $request->getQuery("host"),
+					"port"     => $request->getPost("port"),
 					"username" => $request->getQuery("username"),
 					"password" => ($request->getQuery("password") !== null ? $request->getQuery("password") : "")
-				);
+				];
 			}
 			// validate user input and redirect to previous page if valid
-			if($form->validate())
-			{
+			if ($form->validate()) {
 				$redirectUrl = $request->getPost("redirectUrl");
-				if($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login"))
-				{
+				if ($redirectUrl !== null && !StringUtil::endsWith($redirectUrl, "site/login")) {
 					$this->redirect($redirectUrl);
 				}
-				else
-				{
+				else {
 					$this->redirect(Yii::app()->homeUrl);
 				}
 			}
 		}
 
 		$validBrowser = true;
-		if($_SERVER['HTTP_USER_AGENT'])
-		{
+		if ($_SERVER['HTTP_USER_AGENT']) {
 			preg_match('/MSIE (\d+)\.\d+/i', $_SERVER['HTTP_USER_AGENT'], $res);
-			if(count($res) == 2 && $res[1] <= 7)
-			{
+			if (count($res) == 2 && $res[1] <= 7) {
 				$validBrowser = false;
 			}
 		}
 
-		$this->render('login',array(
-			'form'=>$form,
-			'languages'=>$languages,
-			'hosts'=>$hosts,
-			'themes'=>$themes,
+		$this->render('login', [
+			'form'         => $form,
+			'languages'    => $languages,
+			'hosts'        => $hosts,
+			'themes'       => $themes,
 			'validBrowser' => $validBrowser,
-		));
+		]);
 	}
 
 	public function actionKeepAlive()
@@ -221,6 +214,7 @@ class SiteController extends Controller
 		Yii::app()->session->add('language', Yii::app()->getRequest()->getParam('id'));
 		$this->redirect(Yii::app()->createUrl('site/login'));
 	}
+
 	/**
 	 * Change the theme
 	 */
@@ -244,35 +238,33 @@ class SiteController extends Controller
 
 		$cmdBuilder = new CDbCommandBuilder(Yii::app()->db->getSchema());
 
-		$criteria = new CDbCriteria;
+		$criteria            = new CDbCriteria;
 		$criteria->condition = "TABLE_NAME LIKE :table OR TABLE_SCHEMA LIKE :schema";
-		$criteria->params = array(
-			":table"=>"%" . Yii::app()->getRequest()->getParam('q') . "%",
-			":schema"=>"%" . Yii::app()->getRequest()->getParam('q') . "%"
-		);
-		$criteria->order = 'TABLE_SCHEMA, TABLE_NAME';
+		$criteria->params    = [
+			":table"  => "%".Yii::app()->getRequest()->getParam('q')."%",
+			":schema" => "%".Yii::app()->getRequest()->getParam('q')."%"
+		];
+		$criteria->order     = 'TABLE_SCHEMA, TABLE_NAME';
 
-		$items = array();
+		$items = [];
 
 		$lastSchemaName = '';
-		foreach(Table::model()->findAll($criteria) AS $table)
-		{
-			if($table->TABLE_SCHEMA != $lastSchemaName)
-			{
-				$items[] = CJSON::encode(array(
-					'text' => '<span class="icon schema">' . Html::icon('database') . '<span>' . StringUtil::cutText($table->TABLE_SCHEMA, 30) . '</span></span>',
-					'target' => Yii::app()->createUrl('schema/' . $table->TABLE_SCHEMA),
-					'plain' => $table->TABLE_SCHEMA,
-				));
+		foreach (Table::model()->findAll($criteria) AS $table) {
+			if ($table->TABLE_SCHEMA != $lastSchemaName) {
+				$items[] = CJSON::encode([
+											 'text'   => '<span class="icon schema">'.Html::icon('database').'<span>'.StringUtil::cutText($table->TABLE_SCHEMA, 30).'</span></span>',
+											 'target' => Yii::app()->createUrl('schema/'.$table->TABLE_SCHEMA),
+											 'plain'  => $table->TABLE_SCHEMA,
+										 ]);
 			}
 
 			$lastSchemaName = $table->TABLE_SCHEMA;
 
-			$items[] = CJSON::encode(array(
-				'text' => '<span class="icon table">' . Html::icon('table') . '<span>' . StringUtil::cutText($table->TABLE_NAME, 30) . '</span></span>',
-				'target' => Yii::app()->createUrl('schema/' . $table->TABLE_SCHEMA) . '#tables/' . $table->TABLE_NAME . '/browse',
-				'plain' => $table->TABLE_NAME
-			));
+			$items[] = CJSON::encode([
+										 'text'   => '<span class="icon table">'.Html::icon('table').'<span>'.StringUtil::cutText($table->TABLE_NAME, 30).'</span></span>',
+										 'target' => Yii::app()->createUrl('schema/'.$table->TABLE_SCHEMA).'#tables/'.$table->TABLE_NAME.'/browse',
+										 'plain'  => $table->TABLE_NAME
+									 ]);
 		}
 
 		Yii::app()->end(implode("\n", $items));

@@ -25,25 +25,15 @@ class TableTest extends ChiveTestCase
 {
 
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/TableTest.sql');
-		
-		Table::$db = $this->createDbConnection('tabletest');
-	}
-
-	/**
 	 * Test loading
 	 */
 	public function testLoad()
 	{
 		// Load table definition
-		$table1 = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table1 = Table::model()->findByPk([
+											   'TABLE_SCHEMA' => 'tabletest',
+											   'TABLE_NAME'   => 'innodb',
+										   ]);
 
 		// Check if result is of type Table
 		$this->assertEquals(true, $table1 instanceof Table);
@@ -58,10 +48,10 @@ class TableTest extends ChiveTestCase
 		$this->assertEquals(true, $table1->getHasPrimaryKey());
 
 		// Load table definition which doesn't exist
-		$table2 = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'notthere',
-		));
+		$table2 = Table::model()->findByPk([
+											   'TABLE_SCHEMA' => 'tabletest',
+											   'TABLE_NAME'   => 'notthere',
+										   ]);
 
 		// Check if result is null
 		$this->assertEquals(null, $table2);
@@ -73,19 +63,19 @@ class TableTest extends ChiveTestCase
 	public function testDrop()
 	{
 		// Load table definition
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb',
+										  ]);
 
 		// Drop table
 		$table->delete();
 
 		// Reload table definition
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb',
+										  ]);
 
 		// Check if table is still there
 		$this->assertNull($table);
@@ -97,10 +87,10 @@ class TableTest extends ChiveTestCase
 	public function testTruncate()
 	{
 		// Load table definition
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb',
+										  ]);
 
 		// Drop table
 		$table->truncate();
@@ -119,29 +109,29 @@ class TableTest extends ChiveTestCase
 	public function testUpdate()
 	{
 		// Load table definition
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb',
+										  ]);
 
 		// Save without changing something
 		$table->save();
 
 		// Set some properties and save
-		$table->TABLE_NAME = 'innodb2';
-		$table->optionChecksum = 1;
+		$table->TABLE_NAME          = 'innodb2';
+		$table->optionChecksum      = 1;
 		$table->optionDelayKeyWrite = 1;
-		$table->optionPackKeys = 0;
-		$table->ENGINE = 'MyISAM';
-		$table->TABLE_COLLATION = 'utf8_general_ci';
-		$table->comment = 'mein testkommentar';
+		$table->optionPackKeys      = 0;
+		$table->ENGINE              = 'MyISAM';
+		$table->TABLE_COLLATION     = 'utf8_general_ci';
+		$table->comment             = 'mein testkommentar';
 		$table->save();
 
 		// Load again
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb2',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb2',
+										  ]);
 
 		// Check properties
 		$this->assertEquals('innodb2', $table->TABLE_NAME);
@@ -156,14 +146,14 @@ class TableTest extends ChiveTestCase
 
 		// Set option pack_keys to 1
 		$table->optionPackKeys = 1;
-		$table->ENGINE = 'InnoDB';
+		$table->ENGINE         = 'InnoDB';
 		$table->save();
 
 		// Load again
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb2',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb2',
+										  ]);
 
 		// Check properties
 		$this->assertEquals(1, $table->optionPackKeys);
@@ -176,10 +166,10 @@ class TableTest extends ChiveTestCase
 	public function testUpdateNameExists()
 	{
 		// Load table definition
-		$table = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'tabletest',
+											  'TABLE_NAME'   => 'innodb',
+										  ]);
 
 		// Set name and save
 		$table->TABLE_NAME = 'myisam';
@@ -194,10 +184,10 @@ class TableTest extends ChiveTestCase
 	public function testIndexTypes()
 	{
 		// Load table definition
-		$innodb = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'innodb',
-		));
+		$innodb = Table::model()->findByPk([
+											   'TABLE_SCHEMA' => 'tabletest',
+											   'TABLE_NAME'   => 'innodb',
+										   ]);
 
 		// Check types
 		$types = $innodb->getSupportedIndexTypes();
@@ -207,10 +197,10 @@ class TableTest extends ChiveTestCase
 		$this->assertEquals(false, isset($types['FULLTEXT']));
 
 		// Load table definition
-		$myisam = Table::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'tabletest',
-			'TABLE_NAME' => 'myisam',
-		));
+		$myisam = Table::model()->findByPk([
+											   'TABLE_SCHEMA' => 'tabletest',
+											   'TABLE_NAME'   => 'myisam',
+										   ]);
 
 		// Check types
 		$types = $myisam->getSupportedIndexTypes();
@@ -234,79 +224,81 @@ class TableTest extends ChiveTestCase
 		$this->assertTrue(is_array($table->relations()));
 	}
 
-
 	/**
 	 * Test to create a Table
 	 */
 	public function testCreateTable()
 	{
-		$col1 = new Column();
+		$col1              = new Column();
 		$col1->COLUMN_NAME = 'test1';
 
 		$col1->setDataType('int');
 		$col1->setAutoIncrement(true);
 		$col1->setIsNullable(false);
-		$col1->size=20;
+		$col1->size             = 20;
 		$col1->createPrimaryKey = true;
 
-		$col2 = new Column();
+		$col2              = new Column();
 		$col2->COLUMN_NAME = 'test2';
 
 		$col2->setDataType('varchar');
 		$col2->setCollation('utf8_general_ci');
-		$col2->size=250;
+		$col2->size = 250;
 
-		$columns = array($col1,$col2);
+		$columns = [
+			$col1,
+			$col2
+		];
 
 		$table = new Table();
 
 		// Set some properties and save
-		$table->TABLE_NAME = 'innodb2';
-		$table->TABLE_SCHEMA = 'tabletest';
-		$table->optionChecksum = 1;
+		$table->TABLE_NAME          = 'innodb2';
+		$table->TABLE_SCHEMA        = 'tabletest';
+		$table->optionChecksum      = 1;
 		$table->optionDelayKeyWrite = 1;
-		$table->optionPackKeys = 0;
-		$table->ENGINE = 'MyISAM';
-		$table->TABLE_COLLATION = 'utf8_general_ci';
-		$table->comment = 'mein testkommentar';
+		$table->optionPackKeys      = 0;
+		$table->ENGINE              = 'MyISAM';
+		$table->TABLE_COLLATION     = 'utf8_general_ci';
+		$table->comment             = 'mein testkommentar';
 
 		$table->columns = $columns;
 		$table->insert();
 
 		$this->assertTrue(is_string($table->showCreateTable));
 
-		$pk = array(
-		 'TABLE_SCHEMA' => 'tabletest',
-		 'TABLE_NAME' => 'innodb2',
-		 'COLUMN_NAME' => 'test1',
-		);
+		$pk = [
+			'TABLE_SCHEMA' => 'tabletest',
+			'TABLE_NAME'   => 'innodb2',
+			'COLUMN_NAME'  => 'test1',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 
-		$this->assertEquals('test1',$col->COLUMN_NAME);
-		$this->assertEquals('int',$col->getDataType());
+		$this->assertEquals('test1', $col->COLUMN_NAME);
+		$this->assertEquals('int', $col->getDataType());
 		$this->assertTrue($col->getAutoIncrement());
 		$this->assertFalse($col->getIsNullable());
 		$this->assertTrue($col->getIsPartOfPrimaryKey());
-		$this->assertEquals(20,$col->size);
+		$this->assertEquals(20, $col->size);
 
-		$pk = array(
-		 'TABLE_SCHEMA' => 'tabletest',
-		 'TABLE_NAME' => 'innodb2',
-		 'COLUMN_NAME' => 'test2',
-		);
+		$pk = [
+			'TABLE_SCHEMA' => 'tabletest',
+			'TABLE_NAME'   => 'innodb2',
+			'COLUMN_NAME'  => 'test2',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 
-		$this->assertEquals('test2',$col->COLUMN_NAME);
-		$this->assertEquals('varchar',$col->getDataType());
+		$this->assertEquals('test2', $col->COLUMN_NAME);
+		$this->assertEquals('varchar', $col->getDataType());
 		$this->assertFalse($col->getAutoIncrement());
 		$this->assertFalse($col->getIsNullable());
 		$this->assertFalse($col->getIsPartOfPrimaryKey());
-		$this->assertEquals('utf8_general_ci',$col->getCollation());
-		$this->assertEquals(250,$col->size);
+		$this->assertEquals('utf8_general_ci', $col->getCollation());
+		$this->assertEquals(250, $col->size);
 	}
 
 	/**
@@ -314,10 +306,10 @@ class TableTest extends ChiveTestCase
 	 */
 	public function testHasPrimaryKeyFalse()
 	{
-		$table = array(
-		 'TABLE_SCHEMA' => 'tabletest',
-		 'TABLE_NAME' => 'tabletest3',
-		);
+		$table = [
+			'TABLE_SCHEMA' => 'tabletest',
+			'TABLE_NAME'   => 'tabletest3',
+		];
 
 		// Load column definition
 		$ta = Table::model()->findByPk($table);
@@ -338,7 +330,6 @@ class TableTest extends ChiveTestCase
 		$table->update();
 	}
 
-
 	/**
 	 * Record can't be inserted cause its not new
 	 *
@@ -346,24 +337,34 @@ class TableTest extends ChiveTestCase
 	 */
 	public function testInsertException1()
 	{
-		$col2 = new Column();
+		$col2              = new Column();
 		$col2->COLUMN_NAME = 'test2';
 
 		$col2->setDataType('varchar');
 		$col2->setCollation('utf8_general_ci');
-		$col2->size=250;
+		$col2->size = 250;
 
 
-		$column = array($col2);
+		$column = [$col2];
 
-		$table = array(
-		'TABLE_SCHEMA' => 'tabletest',
-		'TABLE_NAME' => 'tabletest3',
-		);
+		$table = [
+			'TABLE_SCHEMA' => 'tabletest',
+			'TABLE_NAME'   => 'tabletest3',
+		];
 
 		// Load column definition
 		$ta = Table::model()->findByPk($table);
 		$ta->insert($column);
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/TableTest.sql');
+
+		Table::$db = $this->createDbConnection('tabletest');
 	}
 
 }

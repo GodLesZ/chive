@@ -23,13 +23,13 @@
 
 class DataTypeTest extends CTestCase
 {
-	
+
 	/**
 	 * test if the check method returns the correct values
 	 */
 	public function testCheck()
 	{
-		$types = array(
+		$types = [
 			'bit',
 			'tinyint',
 			'bool',
@@ -52,16 +52,16 @@ class DataTypeTest extends CTestCase
 			'longblob',
 			'binary',
 			'varbinary',
-		    'enum',
+			'enum',
 			'set',
 			'date',
 			'datetime',
 			'timestamp',
 			'time',
 			'year'
-		);
+		];
 
-		$options_bool = array(
+		$options_bool = [
 			DataType::SUPPORTS_COLLATION,
 			DataType::SUPPORTS_INDEX,
 			DataType::SUPPORTS_UNIQUE,
@@ -73,18 +73,18 @@ class DataTypeTest extends CTestCase
 			DataType::SUPPORTS_UNSIGNED_ZEROFILL,
 			DataType::SUPPORTS_ON_UPDATE_CURRENT_TIMESTAMP,
 			DataType::SUPPORTS_AUTO_INCREMENT
-		);
+		];
 
-		$options_string = array(DataType::GROUP,DataType::INPUT_TYPE);
+		$options_string = [
+			DataType::GROUP,
+			DataType::INPUT_TYPE
+		];
 
-		foreach($types as $type)
-		{
-			foreach($options_bool as $option)
-			{
+		foreach ($types as $type) {
+			foreach ($options_bool as $option) {
 				$this->assertType('bool', DataType::check($type, $option));
 			}
-			foreach($options_string as $option)
-			{
+			foreach ($options_string as $option) {
 				$this->assertType('string', DataType::check($type, $option));
 			}
 		}
@@ -95,66 +95,65 @@ class DataTypeTest extends CTestCase
 	 */
 	public function testBaseType()
 	{
-		$types = array(
-			'bit(1)' => 'bit',
-			'tinyint(2)' => 'tinyint',
-			'bool' => 'bool',
-			'smallint(4)' => 'smallint',
-			'mediumint(8)' => 'mediumint',
-			'int(10)' => 'int',
-			'bigint(16)' => 'bigint',
-			'float(1)' => 'float',
-			'float' => 'float',
-			'float(1,1)' => 'float',
-			'double(14,4)' => 'double', 
-			'decimal(3,5)'=> 'decimal',
-			'char' => 'char',
-			'varchar(10)' => 'varchar',
-			'tinytext' => 'tinytext',
-			'text' => 'text',
-			'mediumtext' =>'mediumtext',
-			'longtext' => 'longtext',
-			'tinyblob' => 'tinyblob',
-			'blob' => 'blob',
-			'mediumblob' => 'mediumblob',
-			'longblob' => 'longblob',
-			'binary' => 'binary',
-			'varbinary' => 'varbinary',
-		    'enum(1,2,3)' => 'enum',
-			'enum(\'1\',\'2\')' => 'enum',
-			'set(1,2,3)' => 'set',
-		    'set(\'1\',\'2\')' => 'set',
-			'date' => 'date',
-		    'date(YYYY-MM-DD)'=> 'date',
-		    'datetime(YYYY-MM-DD HH:MM:SS)' => 'datetime',
-		    'datetime' => 'datetime',
-			'timestamp'=> 'timestamp',
-			'time(HH:MM:SS)' => 'time',
-		    'time' => 'time',
-			'year' => 'year'
-		);
+		$types = [
+			'bit(1)'                        => 'bit',
+			'tinyint(2)'                    => 'tinyint',
+			'bool'                          => 'bool',
+			'smallint(4)'                   => 'smallint',
+			'mediumint(8)'                  => 'mediumint',
+			'int(10)'                       => 'int',
+			'bigint(16)'                    => 'bigint',
+			'float(1)'                      => 'float',
+			'float'                         => 'float',
+			'float(1,1)'                    => 'float',
+			'double(14,4)'                  => 'double',
+			'decimal(3,5)'                  => 'decimal',
+			'char'                          => 'char',
+			'varchar(10)'                   => 'varchar',
+			'tinytext'                      => 'tinytext',
+			'text'                          => 'text',
+			'mediumtext'                    => 'mediumtext',
+			'longtext'                      => 'longtext',
+			'tinyblob'                      => 'tinyblob',
+			'blob'                          => 'blob',
+			'mediumblob'                    => 'mediumblob',
+			'longblob'                      => 'longblob',
+			'binary'                        => 'binary',
+			'varbinary'                     => 'varbinary',
+			'enum(1,2,3)'                   => 'enum',
+			'enum(\'1\',\'2\')'             => 'enum',
+			'set(1,2,3)'                    => 'set',
+			'set(\'1\',\'2\')'              => 'set',
+			'date'                          => 'date',
+			'date(YYYY-MM-DD)'              => 'date',
+			'datetime(YYYY-MM-DD HH:MM:SS)' => 'datetime',
+			'datetime'                      => 'datetime',
+			'timestamp'                     => 'timestamp',
+			'time(HH:MM:SS)'                => 'time',
+			'time'                          => 'time',
+			'year'                          => 'year'
+		];
 
-		foreach($types as $type => $expected)
-		{
+		foreach ($types as $type => $expected) {
 			$this->assertEquals($expected, DataType::getBaseType($type));
 		}
 	}
 
-	/** 
+	/**
 	 * test if the method getInputType returns the correct inputtype
 	 */
 	public function testGetInputType()
 	{
 		$DataType = new DataType();
-		$this->assertEquals('number',$DataType->getInputType('int'));
-		$this->assertEquals('checkbox',$DataType->getInputType('bool'));
-		$this->assertEquals('file',$DataType->getInputType('blob'));
-		$this->assertEquals('single',$DataType->getInputType('binary'));
-		$this->assertEquals('text',$DataType->getInputType('text'));
-		$this->assertEquals('select-multiple',$DataType->getInputType('set'));
-		$this->assertEquals('date',$DataType->getInputType('date'));
-		$this->assertEquals('datetime',$DataType->getInputType('datetime'));
-		$this->assertEquals('number',$DataType->getInputType('year'));
+		$this->assertEquals('number', $DataType->getInputType('int'));
+		$this->assertEquals('checkbox', $DataType->getInputType('bool'));
+		$this->assertEquals('file', $DataType->getInputType('blob'));
+		$this->assertEquals('single', $DataType->getInputType('binary'));
+		$this->assertEquals('text', $DataType->getInputType('text'));
+		$this->assertEquals('select-multiple', $DataType->getInputType('set'));
+		$this->assertEquals('date', $DataType->getInputType('date'));
+		$this->assertEquals('datetime', $DataType->getInputType('datetime'));
+		$this->assertEquals('number', $DataType->getInputType('year'));
 	}
 
 }

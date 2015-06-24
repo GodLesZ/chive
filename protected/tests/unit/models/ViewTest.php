@@ -24,17 +24,6 @@
 class ViewTest extends ChiveTestCase
 {
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/ViewTest.sql');
-		
-		View::$db = $this->createDbConnection('viewtest');
-	}
-
-
-	/**
 	 * tests some config
 	 */
 	public function testConfig()
@@ -48,16 +37,15 @@ class ViewTest extends ChiveTestCase
 		$this->assertType('array', $v->attributeLabels());
 	}
 
-
 	/**
 	 * tries to read a view
 	 */
 	public function testGet()
 	{
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
 
 		$this->assertEquals('viewtest', $viewObj->TABLE_SCHEMA);
 		$this->assertEquals('view1', $viewObj->TABLE_NAME);
@@ -68,60 +56,69 @@ class ViewTest extends ChiveTestCase
 	 */
 	public function testDelete()
 	{
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
 
 		$this->assertType('string', $viewObj->delete());
 
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
 
 		$this->assertNull($viewObj);
 	}
-	
+
 	/**
 	 * tries to alter a view
-	 * @todo(mburtscher): try to execute it! 
+	 * @todo(mburtscher): try to execute it!
 	 */
 	public function testAlter()
 	{
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
-				
-		$this->assertType('string', $viewObj->getAlterView());	
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
+
+		$this->assertType('string', $viewObj->getAlterView());
 	}
 
-	
 	/**
 	 * tries to create a new view
 	 */
 	public function testCreate()
 	{
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
-		
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
+
 		$createView = $viewObj->getCreateView();
-		
-		$this->assertType('string',$createView);
-		$this->assertType('string',$viewObj->delete());
-		
+
+		$this->assertType('string', $createView);
+		$this->assertType('string', $viewObj->delete());
+
 		$cmd = View::$db->createCommand($createView);
 		$this->assertEquals(0, $cmd->execute());
-		
-		$viewObj = View::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'viewtest',
-		'TABLE_NAME' => 'view1'
-		));
-		
+
+		$viewObj = View::model()->findByPk([
+											   'TABLE_SCHEMA' => 'viewtest',
+											   'TABLE_NAME'   => 'view1'
+										   ]);
+
 		$this->assertType('View', $viewObj);
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/ViewTest.sql');
+
+		View::$db = $this->createDbConnection('viewtest');
 	}
 
 }

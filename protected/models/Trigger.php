@@ -23,11 +23,11 @@
 
 class Trigger extends CActiveRecord
 {
-	
+
 	public static $db;
 
 	/**
-	 * @see		CActiveRecord::model()
+	 * @see        CActiveRecord::model()
 	 */
 	public static function model($className = __CLASS__)
 	{
@@ -35,7 +35,7 @@ class Trigger extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::tableName()
+	 * @see        CActiveRecord::tableName()
 	 */
 	public function tableName()
 	{
@@ -43,33 +43,32 @@ class Trigger extends CActiveRecord
 	}
 
 	/**
-	 * @see		CActiveRecord::primaryKey()
+	 * @see        CActiveRecord::primaryKey()
 	 */
 	public function primaryKey()
 	{
-		return array(
+		return [
 			'TRIGGER_SCHEMA',
 			'TRIGGER_NAME',
-		);
+		];
 	}
 
 	/**
-	 * @see		CActiveRecord::delete()
+	 * @see        CActiveRecord::delete()
 	 */
 	public function delete()
 	{
-		$sql = 'DROP TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_NAME) . ';';
+		$sql = 'DROP TRIGGER '.self::$db->quoteTableName($this->TRIGGER_NAME).';';
 		$cmd = self::$db->createCommand($sql);
 
 		// Execute
-		try
-		{
+		try {
 			$cmd->prepare();
 			$cmd->execute();
+
 			return $sql;
 		}
-		catch(CDbException $ex)
-		{
+		catch (CDbException $ex) {
 			throw new DbException($cmd);
 		}
 	}
@@ -77,14 +76,11 @@ class Trigger extends CActiveRecord
 	/**
 	 * Returns the CREATE TRIGGER statement for this trigger.
 	 *
-	 * @return	string
+	 * @return    string
 	 */
 	public function getCreateTrigger()
 	{
-		return 'CREATE TRIGGER ' . self::$db->quoteTableName($this->TRIGGER_SCHEMA) . '.' . self::$db->quoteTableName($this->TRIGGER_NAME) . "\n"
-			. $this->ACTION_TIMING . ' ' . $this->EVENT_MANIPULATION . "\n"
-			. 'ON ' . self::$db->quoteTableName($this->EVENT_OBJECT_TABLE) . ' FOR EACH ROW' . "\n"
-			. $this->ACTION_STATEMENT;
+		return 'CREATE TRIGGER '.self::$db->quoteTableName($this->TRIGGER_SCHEMA).'.'.self::$db->quoteTableName($this->TRIGGER_NAME)."\n".$this->ACTION_TIMING.' '.$this->EVENT_MANIPULATION."\n".'ON '.self::$db->quoteTableName($this->EVENT_OBJECT_TABLE).' FOR EACH ROW'."\n".$this->ACTION_STATEMENT;
 	}
 
 }

@@ -30,12 +30,12 @@ class RoutineController extends Controller
 
 	public $layout = false;
 
-	public function __construct($id, $module=null)
+	public function __construct($id, $module = null)
 	{
 		$request = Yii::app()->getRequest();
 
 		$this->routine = $request->getParam('routine');
-		$this->schema = $request->getParam('schema');
+		$this->schema  = $request->getParam('schema');
 
 		parent::__construct($id, $module);
 		$this->connectDb($this->schema);
@@ -47,50 +47,41 @@ class RoutineController extends Controller
 	public function actionCreate()
 	{
 		$routine = new Routine();
-		$type = $_REQUEST['type'];
+		$type    = $_REQUEST['type'];
 
-		if(isset($_POST['query']))
-		{
+		if (isset($_POST['query'])) {
 			$query = $_POST['query'];
-			$cmd = null;
+			$cmd   = null;
 
-			try
-			{
+			try {
 
 				$cmd = $this->db->createCommand($query);
 				$cmd->prepare();
 				$cmd->execute();
 
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAdd' . ucfirst($type)),
-					null,
-					$query);
+				$response->addNotification('success', Yii::t('core', 'successAdd'.ucfirst($type)), null, $query);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
-			catch(CDbException $ex)
-			{
+			catch (CDbException $ex) {
 				$errorInfo = $cmd->getPdoStatement()->errorInfo();
-				$routine->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
+				$routine->addError(null, Yii::t('core', 'sqlErrorOccured', [
+					'{errno}'  => $errorInfo[1],
+					'{errmsg}' => $errorInfo[2]
+				]));
 			}
 		}
-		else
-		{
-			$query = 'CREATE ' . strtoupper($type) . ' ' . $this->db->quoteTableName('name_of_' . strtolower($type)) . "()\n"
-				. ($type == 'function' ? 'RETURNS VARCHAR(50)' . "\n" : '')
-				. 'BEGIN' . "\n"
-				. '-- Definition start' . "\n\n"
-				. '-- Definition end' . "\n"
-				. 'END';
+		else {
+			$query = 'CREATE '.strtoupper($type).' '.$this->db->quoteTableName('name_of_'.strtolower($type))."()\n".($type == 'function' ? 'RETURNS VARCHAR(50)'."\n" : '').'BEGIN'."\n".'-- Definition start'."\n\n".'-- Definition end'."\n".'END';
 		}
 
 		CHtml::generateRandomIdPrefix();
-		$this->render('form', array(
+		$this->render('form', [
 			'routine' => $routine,
-			'query' => $query,
-			'type' => $type,
-		));
+			'query'   => $query,
+			'type'    => $type,
+		]);
 	}
 
 	/**
@@ -98,39 +89,33 @@ class RoutineController extends Controller
 	 */
 	public function actionDrop()
 	{
-		$response = new AjaxResponse();
+		$response          = new AjaxResponse();
 		$response->refresh = true;
-		$routines = (array)$_POST['routines'];
-		$droppedRoutines = $droppedSqls = array();
+		$routines          = (array)$_POST['routines'];
+		$droppedRoutines   = $droppedSqls = [];
 
-		foreach($routines AS $routine)
-		{
-			$routineObj = Routine::model()->findByPk(array(
-				'ROUTINE_SCHEMA' => $this->schema,
-				'ROUTINE_NAME' => $routine,
-			));
-			try
-			{
-				$sql = $routineObj->delete();
+		foreach ($routines AS $routine) {
+			$routineObj = Routine::model()->findByPk([
+														 'ROUTINE_SCHEMA' => $this->schema,
+														 'ROUTINE_NAME'   => $routine,
+													 ]);
+			try {
+				$sql               = $routineObj->delete();
 				$droppedRoutines[] = $routine;
-				$droppedSqls[] = $sql;
+				$droppedSqls[]     = $sql;
 			}
-			catch(DbException $ex)
-			{
-				$response->addNotification('error',
-					Yii::t('core', 'errorDropRoutine', array('{routine}' => $routine)),
-					$ex->getText(),
-					$ex->getSql());
+			catch (DbException $ex) {
+				$response->addNotification('error', Yii::t('core', 'errorDropRoutine', ['{routine}' => $routine]), $ex->getText(), $ex->getSql());
 			}
 		}
 
 		$count = count($droppedRoutines);
-		if($count > 0)
-		{
-			$response->addNotification('success',
-				Yii::t('core', 'successDropRoutine', array($count, '{routine}' => $droppedRoutines[0], '{routineCount}' => $count)),
-				($count > 1 ? implode(', ', $droppedRoutines) : null),
-				implode("\n", $droppedSqls));
+		if ($count > 0) {
+			$response->addNotification('success', Yii::t('core', 'successDropRoutine', [
+				$count,
+				'{routine}'      => $droppedRoutines[0],
+				'{routineCount}' => $count
+			]), ($count > 1 ? implode(', ', $droppedRoutines) : null), implode("\n", $droppedSqls));
 		}
 
 		$this->sendJSON($response);
@@ -141,76 +126,67 @@ class RoutineController extends Controller
 	 */
 	public function actionUpdate()
 	{
-		$routine = Routine::model()->findByPk(array(
-			'ROUTINE_SCHEMA' => $this->schema,
-			'ROUTINE_NAME' => $this->routine,
-		));
-		if(is_null($routine))
-		{
-			$routine = new Routine();
+		$routine = Routine::model()->findByPk([
+												  'ROUTINE_SCHEMA' => $this->schema,
+												  'ROUTINE_NAME'   => $this->routine,
+											  ]);
+		if (is_null($routine)) {
+			$routine               = new Routine();
 			$routine->ROUTINE_TYPE = $_POST['type'];
 		}
 		$type = strtolower($routine->ROUTINE_TYPE);
 
-		if(isset($_POST['query']))
-		{
+		if (isset($_POST['query'])) {
 			$currentRoutine = $routine->getCreateRoutine();
-			
-			$query = $_POST['query'];
-			try
-			{
-				// Split queries
-				$splitter = new SqlSplitter($query);
-				$splitter->delimiter = self::$delimiter;
-				$queries = $splitter->getQueries();
 
-				foreach($queries AS $query2)
-				{
+			$query = $_POST['query'];
+			try {
+				// Split queries
+				$splitter            = new SqlSplitter($query);
+				$splitter->delimiter = self::$delimiter;
+				$queries             = $splitter->getQueries();
+
+				foreach ($queries AS $query2) {
 					$cmd = $this->db->createCommand($query2);
 					$cmd->prepare();
 					$cmd->execute();
 				}
 
 				$response = new AjaxResponse();
-				$response->addNotification('success',
-					Yii::t('core', 'successAlterRoutine', array('{routine}' => $routine->ROUTINE_NAME)),
-					null,
-					$query);
+				$response->addNotification('success', Yii::t('core', 'successAlterRoutine', ['{routine}' => $routine->ROUTINE_NAME]), null, $query);
 				$response->refresh = true;
 				$this->sendJSON($response);
 			}
-			catch(CDbException $ex)
-			{
+			catch (CDbException $ex) {
 				$errorInfo = $cmd->getPdoStatement()->errorInfo();
-				$routine->addError(null, Yii::t('core', 'sqlErrorOccured', array('{errno}' => $errorInfo[1], '{errmsg}' => $errorInfo[2])));
-				
+				$routine->addError(null, Yii::t('core', 'sqlErrorOccured', [
+					'{errno}'  => $errorInfo[1],
+					'{errmsg}' => $errorInfo[2]
+				]));
+
 				$this->restoreCurrentRoutine($currentRoutine);
 			}
 		}
-		else
-		{
-			$query = 'DROP ' . strtoupper($routine->ROUTINE_TYPE) . ' ' . $this->db->quoteTableName($routine->ROUTINE_NAME) . self::$delimiter . "\n"
-				. $routine->getCreateRoutine();
+		else {
+			$query = 'DROP '.strtoupper($routine->ROUTINE_TYPE).' '.$this->db->quoteTableName($routine->ROUTINE_NAME).self::$delimiter."\n".$routine->getCreateRoutine();
 		}
 
 		CHtml::generateRandomIdPrefix();
-		$this->render('form', array(
+		$this->render('form', [
 			'routine' => $routine,
-			'type' => $type,
-			'query' => $query,
-		));
+			'type'    => $type,
+			'query'   => $query,
+		]);
 	}
-	
+
 	private function restoreCurrentRoutine($currentRoutine)
 	{
-		try
-		{
+		try {
 			$cmd = $this->db->createCommand($currentRoutine);
 			$cmd->prepare();
 			$cmd->execute();
 		}
-		catch(CDbException $ex)
-		{
+		catch (CDbException $ex) {
 			// Silently catch this exception because it is a restore function and must not run under all circumstances.
 		}
 	}

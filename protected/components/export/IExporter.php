@@ -24,79 +24,82 @@
 interface IExporter
 {
 
-	/**
-	 * Constructs the new IExport object.
-	 *
-	 * @param	string				used mode (schemata/tables/rows)
-	 * @return	IExport
-	 */
-	public function __construct($mode);
+    /**
+     * Constructs the new IExport object.
+     *
+     * @param    string                used mode (schemata/tables/rows)
+     *
+     * @return    IExport
+     */
+    public function __construct($mode);
 
-	/**
-	 * Returns the settings form for the current mode.
-	 *
-	 * @return	string
-	 */
-	public function getSettingsView();
+    /**
+     * Returns the supported export modes (schemata/tables/rows)
+     *
+     * @return    array
+     */
+    public static function getSupportedModes();
 
-	/**
-	 * Calculates the number of needed steps to export.
-	 *
-	 * @return	int
-	 */
-	public function calculateStepCount();
+    /**
+     * Returns the title for display purposes.
+     *
+     * @return    string
+     */
+    public static function getTitle();
 
-	/**
-	 * Returns the number of steps the export will need.
-	 *
-	 * @return	int
-	 */
-	public function getStepCount();
+    /**
+     * Returns the settings form for the current mode.
+     *
+     * @return    string
+     */
+    public function getSettingsView();
 
-	/**
-	 * Sets the items to export (e.g. tables, schemata).
-	 *
-	 * @param	array				items to export
-	 */
-	public function setItems(array $items);
-	
-	/**
-	 * 
-	 * Sets the rows to export.
-	 * @param array $rows
-	 * @param string $table
-	 * @param string $schema
-	 */
-	public function setRows(array $rows, $table = null, $schema = null);
+    /**
+     * Calculates the number of needed steps to export.
+     *
+     * @return    int
+     */
+    public function calculateStepCount();
 
-	/**
-	 * Runs the specified exporting step.
-	 *
-	 * @param	int					step number
-	 * @param	boolean				collect output or flush directly
-	 * @return	boolean
-	 */
-	public function runStep($i, $collect = false);
+    /**
+     * Returns the number of steps the export will need.
+     *
+     * @return    int
+     */
+    public function getStepCount();
 
-	/**
-	 * Returns the export result.
-	 *
-	 * @return	string
-	 */
-	public function getResult();
+    /**
+     * Sets the items to export (e.g. tables, schemata).
+     *
+     * @param    array                items to export
+     */
+    public function setItems(array $items);
 
-	/**
-	 * Returns the supported export modes (schemata/tables/rows)
-	 *
-	 * @return	array
-	 */
-	public static function getSupportedModes();
+    /**
+     *
+     * Sets the rows to export.
+     *
+     * @param array  $rows
+     * @param string $table
+     * @param string $schema
+     */
+    public function setRows(array $rows, $table = null, $schema = null);
 
-	/**
-	 * Returns the title for display purposes.
-	 *
-	 * @return	string
-	 */
-	public static function getTitle();
+    /**
+     * Runs the specified exporting step.
+     *
+     * @param    int                    step number
+     * @param    boolean                collect output or flush directly
+     *
+     * @return    boolean
+     */
+    public function runStep($i, $collect = false);
+
+    /**
+     * Returns the export result.
+     *
+     * @return    string
+     */
+    public function getResult();
 
 }

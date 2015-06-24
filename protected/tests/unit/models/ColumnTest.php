@@ -24,27 +24,16 @@
 class ColumnTest extends ChiveTestCase
 {
 	/**
-	 * Setup test databases.
-	 */
-	protected function setUp()
-	{
-		$this->executeSqlFile('models/ColumnTest.sql');
-		
-		Table::$db = 
-		ActiveRecord::$db = $this->createDbConnection('columntest');
-	}
-
-	/**
 	 * Test loading
 	 */
 	public function testLoad()
 	{
 		// Define primary key for column
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test1',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test1',
+		];
 
 		// Load column definition
 		$col1 = Column::model()->findByPk($pk);
@@ -68,21 +57,27 @@ class ColumnTest extends ChiveTestCase
 	public function testDrop()
 	{
 		// Load table definition
-		$table = Table::model()->findByPk(array('TABLE_SCHEMA' => 'columntest', 'TABLE_NAME' => 'test'));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'columntest',
+											  'TABLE_NAME'   => 'test'
+										  ]);
 
 		// Save column count
 		$columnCount = count($table->columns);
 
 		// Drop first column
-		$col = $table->columns[0];
+		$col                  = $table->columns[0];
 		$col->throwExceptions = true;
 		$this->assertType('string', $col->delete());
 
 		// Load table definition
-		$table = Table::model()->findByPk(array('TABLE_SCHEMA' => 'columntest', 'TABLE_NAME' => 'test'));
+		$table = Table::model()->findByPk([
+											  'TABLE_SCHEMA' => 'columntest',
+											  'TABLE_NAME'   => 'test'
+										  ]);
 
 		// Check column count
-		$this->assertEquals($columnCount-1, count($table->columns));
+		$this->assertEquals($columnCount - 1, count($table->columns));
 	}
 
 	/**
@@ -91,11 +86,11 @@ class ColumnTest extends ChiveTestCase
 	public function testMove()
 	{
 		// Define primary key for column
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test5',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test5',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
@@ -129,11 +124,11 @@ class ColumnTest extends ChiveTestCase
 	public function testPrimaryKey()
 	{
 		// Define primary key for column
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test5',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test5',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
@@ -162,30 +157,29 @@ class ColumnTest extends ChiveTestCase
 
 	}
 
-
 	/**
 	 * Tests the autoincrement methods
 	 */
 	public function testAutoIncrement()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test1',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test1',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 
 		//set AutoIncrement to false
 		$col->setAutoIncrement(false);
-		$this->assertType('string',$col->save());
+		$this->assertType('string', $col->save());
 		$col = Column::model()->findByPk($pk);
 		$this->assertFalse($col->getAutoIncrement());
 
 		//set AutoIncrement to true
 		$col->setAutoIncrement(true);
-		$this->assertType('string',$col->save());
+		$this->assertType('string', $col->save());
 		$col = Column::model()->findByPk($pk);
 		$this->assertTrue($col->getAutoIncrement());
 	}
@@ -195,22 +189,22 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testIsNullable()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test3',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test3',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 
 		$col->setIsNullable(true);
-		$this->assertType('string',$col->save());
+		$this->assertType('string', $col->save());
 		$col = Column::model()->findByPk($pk);
 		$this->assertTrue($col->getIsNullable());
 
 		$col->setIsNullable(false);
-		$this->assertType('string',$col->save());
+		$this->assertType('string', $col->save());
 		$col = Column::model()->findByPk($pk);
 		$this->assertFalse($col->getIsNullable());
 	}
@@ -220,28 +214,28 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testCollation()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test4',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test4',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 
 		//set COllation to latin1_swedish_ci
 		$col->setCollation('latin1_swedish_ci');
-		$this->assertType('string',$col->save());
+		$this->assertType('string', $col->save());
 
 		$col = Column::model()->findByPk($pk);
-		$this->assertEquals('latin1_swedish_ci',$col->getCollation());
+		$this->assertEquals('latin1_swedish_ci', $col->getCollation());
 
 		// Load integer column
-		$col = Column::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test1',
-		));
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test1',
+										 ]);
 
 		// Set collation
 		$col->setCollation('latin1_swedish_ci');
@@ -254,28 +248,25 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testDataType()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test3',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test3',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
-		$this->assertEquals('varchar',$col->getDataType());
+		$this->assertEquals('varchar', $col->getDataType());
 		$col->setDataType('FLOAT');
-		$col->size=6;
-		$col->scale=4;
-		$this->assertType('string',$col->save());
+		$col->size  = 6;
+		$col->scale = 4;
+		$this->assertType('string', $col->save());
 
 		$col = Column::model()->findByPk($pk);
-		$this->assertEquals('float',$col->getDataType());
+		$this->assertEquals('float', $col->getDataType());
 		$this->assertEquals(6, $col->size);
 		$this->assertEquals(4, $col->scale);
 	}
-
-
-
 
 	/**
 	 * checks if the columntype is correct
@@ -283,15 +274,15 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testGetColumnType()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test5',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test5',
+		];
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
-		$this->assertEquals('float(5, 2)',$col->getColumnType());
+		$this->assertEquals('float(5, 2)', $col->getColumnType());
 	}
 
 	/**
@@ -299,23 +290,22 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testSetGetValues()
 	{
-		$pk = array(
+		$pk = [
 			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'test3',
-		);
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test3',
+		];
 
 		// Set random
 		$rand = md5(microtime());
 
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
-		$col->setValues($rand . ' []{} \'');
+		$col->setValues($rand.' []{} \'');
 		$this->assertType('string', $col->save());
 		$col->refresh();
-		$this->assertEquals($rand . ' []{} \'', $col->getValues());
+		$this->assertEquals($rand.' []{} \'', $col->getValues());
 	}
-
 
 	/**
 	 *
@@ -325,83 +315,80 @@ class ColumnTest extends ChiveTestCase
 	public function testGetColumnDefinition()
 	{
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'columntest',
-		'TABLE_NAME' => 'test',
-		'COLUMN_NAME' => 'test1'
-		));
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test1'
+										 ]);
 
-		$this->assertEquals('int',$col->getDataType());
+		$this->assertEquals('int', $col->getDataType());
 		$this->assertFalse($col->getIsNullable());
-		$this->assertEquals('unsigned',$col->attribute);
-		$this->assertEquals('auto_increment',$col->getAutoIncrement());
+		$this->assertEquals('unsigned', $col->attribute);
+		$this->assertEquals('auto_increment', $col->getAutoIncrement());
 		$this->assertTrue($col->getIsPartOfPrimaryKey());
 		$this->assertNull($col->COLUMN_DEFAULT);
 
 
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'columntest',
-		'TABLE_NAME' => 'test',
-		'COLUMN_NAME' => 'test2'
-		));
-		$this->assertEquals('mediumint',$col->getDataType());
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test2'
+										 ]);
+		$this->assertEquals('mediumint', $col->getDataType());
 		$this->assertFalse($col->getIsNullable());
 		$this->assertFalse($col->getAutoIncrement());
-		$this->assertEquals('unsigned',$col->attribute);
-		$this->assertEquals(3,$col->COLUMN_DEFAULT);
+		$this->assertEquals('unsigned', $col->attribute);
+		$this->assertEquals(3, $col->COLUMN_DEFAULT);
 		$this->assertTrue($col->getIsPartOfPrimaryKey());
 		$this->assertFalse($col->getAutoIncrement());
 
 
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'columntest',
-		'TABLE_NAME' => 'test',
-		'COLUMN_NAME' => 'test3'
-		));
-		$this->assertEquals('varchar',$col->getDataType());
-		$this->assertEquals(100,$col->size);
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test3'
+										 ]);
+		$this->assertEquals('varchar', $col->getDataType());
+		$this->assertEquals(100, $col->size);
 		$this->assertFalse($col->getIsNullable());
 		$this->assertFalse($col->getAutoIncrement());
 		$this->assertFalse($col->getIsPartOfPrimaryKey());
 		$this->assertNull($col->COLUMN_DEFAULT);
-		$this->assertEquals('latin1_swedish_ci',$col->getCollation());
+		$this->assertEquals('latin1_swedish_ci', $col->getCollation());
 		$this->assertFalse($col->getAutoIncrement());
 
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'columntest',
-		'TABLE_NAME' => 'test',
-		'COLUMN_NAME' => 'test4'
-		));
-		$this->assertEquals('enum',$col->getDataType());
-		$this->assertContains('a',$col->values);
-		$this->assertContains('b',$col->values);
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test4'
+										 ]);
+		$this->assertEquals('enum', $col->getDataType());
+		$this->assertContains('a', $col->values);
+		$this->assertContains('b', $col->values);
 		$this->assertTrue($col->getIsNullable());
 		$this->assertFalse($col->getIsPartOfPrimaryKey());
-		$this->assertEquals('utf8_general_ci',$col->getCollation());
+		$this->assertEquals('utf8_general_ci', $col->getCollation());
 		$this->assertFalse($col->getAutoIncrement());
 
 
-
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-		'TABLE_SCHEMA' => 'columntest',
-		'TABLE_NAME' => 'test',
-		'COLUMN_NAME' => 'test5'
-		));
-		$this->assertEquals('float',$col->getDataType());
-		$this->assertEquals('5',$col->size);
-		$this->assertEquals('2',$col->scale);
-		$this->assertEquals('',$col->attribute);
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test5'
+										 ]);
+		$this->assertEquals('float', $col->getDataType());
+		$this->assertEquals('5', $col->size);
+		$this->assertEquals('2', $col->scale);
+		$this->assertEquals('', $col->attribute);
 		$this->assertFalse($col->getIsNullable());
 		$this->assertFalse($col->getIsPartOfPrimaryKey());
 		$this->assertNull($col->getCollation());
 		$this->assertFalse($col->getAutoIncrement());
 	}
-
-
 
 	/**
 	 * Deletes all Columns and expect a DbException
@@ -409,19 +396,17 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testDeleteAllColumns()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
-		$i = 0;
+		$i     = 0;
 		$count = count($cols);
-		foreach($cols AS  $col)
-		{
+		foreach ($cols AS $col) {
 			$col->throwExceptions = true;
 
-			if($i == $count - 1)
-			{
+			if ($i == $count - 1) {
 				$this->setExpectedException('CDbException');
 			}
 
@@ -431,8 +416,6 @@ class ColumnTest extends ChiveTestCase
 		}
 
 	}
-
-
 
 	/**
 	 * Record can't be deleted cause its new
@@ -456,59 +439,53 @@ class ColumnTest extends ChiveTestCase
 		$col->update();
 	}
 
-
 	/**
 	 * alter colums and check it afterwards
 	 * set Datatype to float
 	 */
 	public function testAlter()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
 		$count = count($cols);
 
-		foreach($cols AS $c => $col)
-		{
+		foreach ($cols AS $c => $col) {
 			$col->setDataType('float');
-			$col->size = 10;
-			$col->scale = 2;
+			$col->size      = 10;
+			$col->scale     = 2;
 			$col->attribute = "unsigned zerofill";
 			$col->setIsNullable(false);
 			$this->assertType('string', $col->save());
 
-			$pk = array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => $col->COLUMN_NAME,
-			);
-				
-			$this->assertEquals('unsigned zerofill',$col->attribute);
-			$this->assertEquals('float',$col->getDataType());
-			$this->assertEquals(10,$col->size);
-			$this->assertEquals(2,$col->scale);
+			$pk = [
+				'TABLE_SCHEMA' => 'columntest',
+				'TABLE_NAME'   => 'test',
+				'COLUMN_NAME'  => $col->COLUMN_NAME,
+			];
+
+			$this->assertEquals('unsigned zerofill', $col->attribute);
+			$this->assertEquals('float', $col->getDataType());
+			$this->assertEquals(10, $col->size);
+			$this->assertEquals(2, $col->scale);
 			$this->assertNull($col->getCollation());
 			$this->assertfalse($col->getIsNullable());
 
 			// col1 is AutoIncrement
-			if($c == 0)
-			{
+			if ($c == 0) {
 				$this->assertTrue($col->getAutoIncrement());
 			}
-			else
-			{
+			else {
 				$this->assertFalse($col->getAutoIncrement());
 			}
 
 			// col 1 and 2 are PrimaryKey
-			if($c == 0 || $c==1)
-			{
+			if ($c == 0 || $c == 1) {
 				$this->assertTrue($col->getIsPartOfPrimaryKey());
 			}
-			else
-			{
+			else {
 				$this->assertFalse($col->getIsPartOfPrimaryKey());
 			}
 		}
@@ -520,71 +497,63 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testAlter2()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
 
-
-		foreach($cols AS $c => $col)
-		{
+		foreach ($cols AS $c => $col) {
 
 			$col->setDataType('tinyint');
-			$col->size=1;
+			$col->size = 1;
 			$col->setIsNullable(true);
-			$col->COLUMN_DEFAULT=2;
+			$col->COLUMN_DEFAULT = 2;
 
 			$this->assertType('string', $col->save());
 
-			$pk = array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => $col->COLUMN_NAME,
-			);
+			$pk = [
+				'TABLE_SCHEMA' => 'columntest',
+				'TABLE_NAME'   => 'test',
+				'COLUMN_NAME'  => $col->COLUMN_NAME,
+			];
 
 			// Load column definition
 			$col = Column::model()->findByPk($pk);
 
-			$this->assertEquals('tinyint',$col->getDataType());
-			$this->assertEquals(1,$col->size);
+			$this->assertEquals('tinyint', $col->getDataType());
+			$this->assertEquals(1, $col->size);
 
 			//tinyint hasn't got a collation
 			$this->assertNull($col->getCollation());
 
 			//col1 has no ColumnDefault
-			if($c == 0)
-			{
+			if ($c == 0) {
 				$this->assertNull($col->COLUMN_DEFAULT);
 			}
-			else
-			{
-				$this->assertEquals(2,$col->COLUMN_DEFAULT);
+			else {
+				$this->assertEquals(2, $col->COLUMN_DEFAULT);
 			}
 
 			//col1 has AutoIncrement
-			if($c == 0)
-			{
+			if ($c == 0) {
 				$this->assertTrue($col->getAutoIncrement());
 			}
-			else
-			{
+			else {
 				$this->assertFalse($col->getAutoIncrement());
 			}
 
 			//col1 and col2 are Primarykey
-			if($c == 0 || $c==1)
-			{
+			if ($c == 0 || $c == 1) {
 				$this->assertTrue($col->getIsPartOfPrimaryKey());
 				$this->assertFalse($col->getIsNullable());
-				$this->assertEquals('unsigned',$col->attribute);
+				$this->assertEquals('unsigned', $col->attribute);
 
 			}
-			else
-			{
+			else {
 				$this->assertFalse($col->getIsPartOfPrimaryKey());
 				$this->assertTrue($col->getIsNullable());
-				$this->assertEquals('',$col->attribute);
+				$this->assertEquals('', $col->attribute);
 			}
 		}
 	}
@@ -596,49 +565,45 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testAlter3()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
-		foreach($cols AS $c => $col)
-		{
+		foreach ($cols AS $c => $col) {
 			//primary key can't be timestamp, start at column test3
-			if($c > 1)
-			{
-				if($c==3)
-				{
-					$fixture='on update current_timestamp';
-					$col->attribute=$fixture;
+			if ($c > 1) {
+				if ($c == 3) {
+					$fixture        = 'on update current_timestamp';
+					$col->attribute = $fixture;
 				}
 
 				$col->setDataType('timestamp');
-				$col->COLUMN_DEFAULT='2008-11-26 04:12:44';
+				$col->COLUMN_DEFAULT = '2008-11-26 04:12:44';
 				$col->setIsNullable(false);
 				$this->assertType('string', $col->save());
 
 				// Load column definition
-				$col = Column::model()->findByPk(array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => $col->COLUMN_NAME
-				));
+				$col = Column::model()->findByPk([
+													 'TABLE_SCHEMA' => 'columntest',
+													 'TABLE_NAME'   => 'test',
+													 'COLUMN_NAME'  => $col->COLUMN_NAME
+												 ]);
 
-				$this->assertEquals('timestamp',$col->getDataType());
+				$this->assertEquals('timestamp', $col->getDataType());
 				$this->assertFalse($col->getIsNullable());
-				$this->assertEquals('2008-11-26 04:12:44',$col->COLUMN_DEFAULT);
+				$this->assertEquals('2008-11-26 04:12:44', $col->COLUMN_DEFAULT);
 				$this->assertNull($col->getCollation());
 
 				// Load column definition
-				$col = Column::model()->findByPk(array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => $col->COLUMN_NAME
-				));
+				$col = Column::model()->findByPk([
+													 'TABLE_SCHEMA' => 'columntest',
+													 'TABLE_NAME'   => 'test',
+													 'COLUMN_NAME'  => $col->COLUMN_NAME
+												 ]);
 
-				if($c==3)
-				{
-					$this->assertEquals($fixture,strtolower($col->attribute));
+				if ($c == 3) {
+					$this->assertEquals($fixture, strtolower($col->attribute));
 				}
 
 				$this->assertNull($col->size);
@@ -646,47 +611,42 @@ class ColumnTest extends ChiveTestCase
 		}
 	}
 
-
 	/**
 	 * Test to set DataType to ENUM and test it afterwards
 	 */
 	public function testAlter4()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
 		$values = "a\nb\nc\nd\ne";
 
-		foreach($cols AS $c => $col)
-		{
-			if($c > 0)
-			{
+		foreach ($cols AS $c => $col) {
+			if ($c > 0) {
 				$col->setDataType('ENUM');
 				$col->setIsNullable(true);
 				$col->setCollation('latin1_swedish_ci');
-				$col->values=$values;
+				$col->values         = $values;
 				$col->COLUMN_DEFAULT = 'a';
 
 				$this->assertType('string', $col->save());
 
 				// Load column definition
-				$col = Column::model()->findByPk(array(
-				    'TABLE_SCHEMA' => 'columntest',
-				    'TABLE_NAME' => 'test',
-				    'COLUMN_NAME' => $col->COLUMN_NAME
-				));
+				$col = Column::model()->findByPk([
+													 'TABLE_SCHEMA' => 'columntest',
+													 'TABLE_NAME'   => 'test',
+													 'COLUMN_NAME'  => $col->COLUMN_NAME
+												 ]);
 
-				$this->assertEquals('enum',$col->getDataType());
+				$this->assertEquals('enum', $col->getDataType());
 				$this->assertEquals($values, $col->values);
 
-				if($c==1)
-				{
+				if ($c == 1) {
 					$this->assertFalse($col->getIsNullable());
 				}
-				else
-				{
+				else {
 					$this->assertTrue($col->getIsNullable());
 				}
 			}
@@ -698,31 +658,34 @@ class ColumnTest extends ChiveTestCase
 	 */
 	public function testAlter5()
 	{
-		$cols = Column::model()->findAllByAttributes(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-		));
+		$cols = Column::model()->findAllByAttributes([
+														 'TABLE_SCHEMA' => 'columntest',
+														 'TABLE_NAME'   => 'test',
+													 ]);
 
-		$values = "a\nb\nc\nd";
-		$values_arr = array('a','b','c','d');
+		$values     = "a\nb\nc\nd";
+		$values_arr = [
+			'a',
+			'b',
+			'c',
+			'd'
+		];
 
-		foreach($cols AS $c => $col)
-		{
+		foreach ($cols AS $c => $col) {
 			//col1 can't be DataType set
-			if($c > 1)
-			{
+			if ($c > 1) {
 				$col->setDataType('set');
 				$col->setCollation('latin1_swedish_ci');
 				$col->values = ($c % 2 == 0 ? $values : $values_arr);
 
-				$this->assertType('string',$col->save());
+				$this->assertType('string', $col->save());
 
 				// Load column definition
-				$col = Column::model()->findByPk(array(
-				    'TABLE_SCHEMA' => 'columntest',
-				    'TABLE_NAME' => 'test',
-				    'COLUMN_NAME' => $col->COLUMN_NAME
-				));
+				$col = Column::model()->findByPk([
+													 'TABLE_SCHEMA' => 'columntest',
+													 'TABLE_NAME'   => 'test',
+													 'COLUMN_NAME'  => $col->COLUMN_NAME
+												 ]);
 
 				$this->assertEquals('set', $col->getDataType());
 				$this->assertEquals($values, $col->values);
@@ -730,59 +693,56 @@ class ColumnTest extends ChiveTestCase
 		}
 	}
 
-
 	/**
 	 * tests to insert a new Column in to the Table
 	 */
 	public function testInsert()
 	{
-		$col = new Column();
+		$col               = new Column();
 		$col->TABLE_SCHEMA = 'columntest';
-		$col->TABLE_NAME = 'test';
-		$col->COLUMN_NAME = 'testnew';
+		$col->TABLE_NAME   = 'test';
+		$col->COLUMN_NAME  = 'testnew';
 
 		$col->setDataType('DOUBLE');
-		$col->COLUMN_DEFAULT=1;
-		$col->size=20;
-		$col->scale=5;
+		$col->COLUMN_DEFAULT = 1;
+		$col->size           = 20;
+		$col->scale          = 5;
 		$col->setCollation('utf8_general_ci');
 
 		$this->assertType('string', $col->save());
 
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-			'TABLE_SCHEMA' => 'columntest',
-			'TABLE_NAME' => 'test',
-			'COLUMN_NAME' => 'testnew'
-			));
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'testnew'
+										 ]);
 
-			$this->assertEquals('double', $col->getDataType());
-			$this->assertEquals(1.00000, $col->COLUMN_DEFAULT);
-			$this->assertNull($col->getCollation());
-			$this->assertEquals(20,$col->size);
-			$this->assertEquals(5,$col->scale);
+		$this->assertEquals('double', $col->getDataType());
+		$this->assertEquals(1.00000, $col->COLUMN_DEFAULT);
+		$this->assertNull($col->getCollation());
+		$this->assertEquals(20, $col->size);
+		$this->assertEquals(5, $col->scale);
 
 	}
-
 
 	/**
 	 * tests to insert a new Column with wrong Name
 	 */
 	public function testAlterWrongCOLUMNNAME()
 	{
-		$col = new Column();
+		$col               = new Column();
 		$col->TABLE_SCHEMA = 'columntest';
-		$col->TABLE_NAME = 'test';
-		$col->COLUMN_NAME = 'test \'`';
+		$col->TABLE_NAME   = 'test';
+		$col->COLUMN_NAME  = 'test \'`';
 
 		$col->setDataType('float');
-		$col->COLUMN_DEFAULT=1;
-		$col->size = 10;
-		$col->scale=5;
+		$col->COLUMN_DEFAULT = 1;
+		$col->size           = 10;
+		$col->scale          = 5;
 
 		$this->assertFalse($col->insert());
 	}
-
 
 	/**
 	 * tests to alter the Column and Set a new Name
@@ -790,26 +750,25 @@ class ColumnTest extends ChiveTestCase
 	public function testAlterNewCOLUMNNAME()
 	{
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => 'test3',
-		));
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'test3',
+										 ]);
 
-		$col->COLUMN_NAME='testnew';
+		$col->COLUMN_NAME = 'testnew';
 
 		$this->assertType('string', $col->save());
 
 		// Load column definition
-		$col = Column::model()->findByPk(array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => 'testnew',
-		));
+		$col = Column::model()->findByPk([
+											 'TABLE_SCHEMA' => 'columntest',
+											 'TABLE_NAME'   => 'test',
+											 'COLUMN_NAME'  => 'testnew',
+										 ]);
 
-		$this->assertEquals('testnew',$col->COLUMN_NAME);
+		$this->assertEquals('testnew', $col->COLUMN_NAME);
 	}
-
 
 	/**
 	 * Record can't be inserted cause its not new
@@ -820,11 +779,11 @@ class ColumnTest extends ChiveTestCase
 	{
 
 
-		$pk = array(
-			    'TABLE_SCHEMA' => 'columntest',
-			    'TABLE_NAME' => 'test',
-			    'COLUMN_NAME' => 'test5',
-		);
+		$pk = [
+			'TABLE_SCHEMA' => 'columntest',
+			'TABLE_NAME'   => 'test',
+			'COLUMN_NAME'  => 'test5',
+		];
 		// Load column definition
 		$col = Column::model()->findByPk($pk);
 		$col->insert();
@@ -843,5 +802,15 @@ class ColumnTest extends ChiveTestCase
 		$this->assertTrue(is_array($column->rules()));
 		$this->assertTrue(is_array($column->relations()));
 		$this->assertTrue(is_array($column->getDataTypes()));
+	}
+
+	/**
+	 * Setup test databases.
+	 */
+	protected function setUp()
+	{
+		$this->executeSqlFile('models/ColumnTest.sql');
+
+		Table::$db = ActiveRecord::$db = $this->createDbConnection('columntest');
 	}
 }

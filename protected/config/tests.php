@@ -21,19 +21,16 @@
  */
 
 
-return CMap::mergeArray(
-	require(dirname(__FILE__) . '/main.php'),
-	array(
-		'components' => array(
-			// Database settings
-			'db' => array(
-				'class' => 'CDbConnection',
-				'connectionString' => 'mysql:host=localhost;dbname=information_schema',
-				'username' => 'root',
-				'charset' => 'utf8',
-				'autoConnect' => false,
-				'schemaCachingDuration' => 3600,
-			),
-		),
-	)
-);
+return CMap::mergeArray(require(dirname(__FILE__).'/main.php'), [
+																	'components' => [
+																		// Database settings
+																		'db' => [
+																			'class'                 => 'CDbConnection',
+																			'connectionString'      => 'mysql:host=localhost;dbname=information_schema',
+																			'username'              => 'root',
+																			'charset'               => 'utf8',
+																			'autoConnect'           => false,
+																			'schemaCachingDuration' => 3600,
+																		],
+																	],
+																]);

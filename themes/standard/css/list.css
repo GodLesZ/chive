@@ -18,242 +18,262 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@media screen, projection
-{
-	
-	div.list {
-		margin-bottom: 10px;
-	}
-	
-	/*
-	 * Pager
-	 */
-	
-	div.list div.pager.bottom {
-		margin-top: 20px;
-	}
-	
-	
-	/*
-	 * Table
-	 */
-	
-	table.list {
-		border-collapse: separate;
-		border-spacing: 0;
-		-moz-border-radius: 4px;
-		-webkit-border-radius: 4px;
-		border: 1px solid #CCC;
-		width: 100%;
-	}
-	
-	table.list>tbody>tr>td, 
-	table.list>thead>tr>th, 
-	table.list>tfoot>tr>th {
-		padding: 7px 5px;
-	}
-	
-	table.list>tbody>tr>td.nodecoration, 
-	table.list>thead>tr>th.nodecoration, 
-	table.list>tfoot>tr>th.nodecoration {
-		background: none;
-	}
-	
-	table.list td.count {
-		text-align: right;
-	}
-	
-	
-	/*
-	 * ColGroup
-	 */
-	
-	colgroup>col.action,
-	colgroup>col.checkbox {
-		width: 16px;
-	}
-	
-	colgroup>col.type {
-		width: 160px;
-	}
-	
-	colgroup>col.collation {
-		width: 140px;
-	}
-	
-	colgroup>col.null {
-		width: 50px;
-	}
-	
-	colgroup>col.filesize {
-		width: 90px;
-	}
-	
-	colgroup>col.engine {
-		width: 100px;
-	}
-	
-	colgroup>col.operator {
-		width: 120px;
-	}
-	
-	colgroup>col.count {
-		width: 100px;
-	}
-	
-	/*
-	 * THead
-	 */
-	
-	table.list>thead {
-		background: #CCC url(../images/table/head-bg.png) repeat-x scroll left top;
-		height: 30px;
-	}
-	
-	table.list>thead, 
-	table.list>thead a {
-		color: #333;
-		font-weight: bold !important;
-	}
-	
-	
-	/*
-	 * TBody
-	 */
+@media screen, projection {
+    .arrow-up,
+    .arrow-down {
+        border-style   : dashed;
+        border-color   : transparent;
+        border-width   : 0.53em;
+        display        : -moz-inline-box;
+        display        : inline-block;
+        font-size      : 10px;
+        height         : 0;
+        width          : 0;
+        line-height    : 0;
+        position       : relative;
+        vertical-align : middle;
+        margin-right   : 4px;
+    }
 
-	table.list>tbody>tr {
-		background-color: #F0F0F0;
-	}
-	
-	table.list>tbody>tr.odd {
-		background-color: #E0E0E0;
-	}
-	
-	table.list>tbody>tr.selected {
-		background-color: #E3EE93;		
-	}
-	
-	table.list.selectable>tbody>tr:hover {
-		background-color: #D3E73B;
-	}
-	
-	table.list td.noEntries {
-		text-align: center;
-		font-style: italic;
-		padding: 10px 5px;
-	}
-	
-	
-	/*
-	 * TFoot
-	 */
-	
-	table.list>tfoot>tr>th {
-		background: #CCC url(../images/table/head-bg.png) repeat-x scroll left center;
-		color: #333;
-		font-weight: bold;
-	}
-	
-	/*
-	 * Form
-	 */
-	
-	table.list>tbody>tr.form>td {
-		padding: 0px;
-	}
-	
-	table.list>tbody>tr.form>td>div.form {
-		border: solid 4px #D3E73B;
-		background: #e8edc2;
-		padding: 5px;
-	}
-	
-	table.list>tbody>tr.form>td>div.form h1 {
-		font-size: 110%;
-		font-weight: bold;
-	}
-	
-	table.list.editable form {
-		border: none;
-		background: none;
-		padding: 0px;
-	}
-	
-	/*
-	 * Info
-	 */
-	
-	table.list>tbody>tr.info>td {
-		padding: 0px;
-	}
-	
-	table.list>tbody>tr.info>td>div.info {
-		border: solid 4px #3B5998;
-		background: #D6DDEB;
-		padding: 5px;
-	}
-	
-	table.list>tbody>tr.info>td>div.info h1 {
-		font-size: 110%;
-		font-weight: bold;
-	}
-	
-	table.list.editable info {
-		border: none;
-		background: none;
-		padding: 0px;
-	}
-	
-	/*
-	 * Form-List
-	 */
-	
-	table.formList {
-		width: 100%;
-	}
-	
-	table.formList th {
-		font-style: italic;
-		font-weight: normal;
-	}
-	
-	table.formList td,
-	table.formList th {
-		padding: 2px 0px;
-	}
-	
-	table.formList thead {
-		border-bottom: solid 2px #D3E73B;
-	}
-	
-	table.formList tfoot {
-		border-top: solid 2px #D3E73B;
-	}
-	
-	table.formList input.indexSize {
-		width: 40px;
-	}
-	
-	/*
-	 * With selected
-	 */
-	
-	div.list div.withSelected {
-		margin-left: 7px;
-	}
-	
-	div.list div.withSelected img.icon_arrow_turn_090 {
-		top: 0px !important;
-	}
-	
-	div.list>div.withSelected>a, div.list>div.withSelected>span {
-		margin: 0px 5px;
-	}
-	
-	/* Fix required by Google Chrome. Chops off last button without this. */
-	div.list div.withSelected:after
-	{
-		content: url('../../../images/blank.gif');
-	}
-	
+    .arrow-up {
+        border-bottom-width : 1em;
+        border-bottom-style : solid;
+        border-bottom-color : #666666;
+        bottom              : 0.25em;
+    }
+
+    .arrow-down {
+        border-top-width : 1em;
+        border-top-style : solid;
+        border-top-color : #666666;
+        top              : 0.25em;
+    }
+
+    div.list {
+        margin-bottom : 10px;
+    }
+
+    /*
+     * Pager
+     */
+    div.list div.pager.bottom {
+        margin-top : 20px;
+    }
+
+    /*
+     * Table
+     */
+    table.list {
+        border-collapse : separate;
+        border-spacing  : 0;
+        border          : 1px solid #CCCCCC;
+        width           : 100%;
+    }
+
+    table.list > tbody > tr > td,
+    table.list > thead > tr > th,
+    table.list > tfoot > tr > th {
+        padding : 4px 2px;
+    }
+
+    table.list > tbody > tr > td span.icon img.icon,
+    table.list > tbody > tr > td a.icon img.icon,
+    table.list > thead > tr > th span.icon img.icon,
+    table.list > thead > tr > th a.icon img.icon,
+    table.list > tfoot > tr > th span.icon img.icon,
+    table.list > tfoot > tr > th a.icon img.icon {
+        top : 0;
+    }
+
+    table.list > tbody > tr > td.nodecoration,
+    table.list > thead > tr > th.nodecoration,
+    table.list > tfoot > tr > th.nodecoration {
+        background : none;
+    }
+
+    table.list td.count {
+        text-align : right;
+    }
+
+    /*
+     * ColGroup
+     */
+    colgroup > col.action,
+    colgroup > col.checkbox {
+        width : 16px;
+    }
+
+    colgroup > col.type {
+        width : 160px;
+    }
+
+    colgroup > col.collation {
+        width : 140px;
+    }
+
+    colgroup > col.null {
+        width : 50px;
+    }
+
+    colgroup > col.filesize {
+        width : 90px;
+    }
+
+    colgroup > col.engine {
+        width : 100px;
+    }
+
+    colgroup > col.operator {
+        width : 120px;
+    }
+
+    colgroup > col.count {
+        width : 100px;
+    }
+
+    /*
+     * THead
+     */
+    table.list > thead {
+        background-color : #DDDDDD;
+        height           : 30px;
+    }
+
+    table.list > thead,
+    table.list > thead a {
+        color       : #333333;
+        font-weight : bold !important;
+    }
+
+    /*
+     * TBody
+     */
+    table.list > tbody > tr {
+        background-color : #F0F0F0;
+    }
+
+    table.list > tbody > tr.odd {
+        background-color : #E0E0E0;
+    }
+
+    table.list > tbody > tr.selected {
+        background-color : #E3EE93;
+    }
+
+    table.list.selectable > tbody > tr:hover {
+        background-color : #D3E73B;
+    }
+
+    table.list td.noEntries {
+        text-align : center;
+        font-style : italic;
+        padding    : 10px 5px;
+    }
+
+    /*
+     * TFoot
+     */
+    table.list > tfoot > tr > th {
+        background  : #CCCCCC url(../images/table/head-bg.png) repeat-x scroll left center;
+        color       : #333333;
+        font-weight : bold;
+    }
+
+    /*
+     * Form
+     */
+    table.list > tbody > tr.form > td {
+        padding : 0px;
+    }
+
+    table.list > tbody > tr.form > td > div.form {
+        border     : solid 4px #D3E73B;
+        background : #E8EDC2;
+        padding    : 5px;
+    }
+
+    table.list > tbody > tr.form > td > div.form h1 {
+        font-size   : 110%;
+        font-weight : bold;
+    }
+
+    table.list.editable form {
+        border     : none;
+        background : none;
+        padding    : 0px;
+    }
+
+    /*
+     * Info
+     */
+    table.list > tbody > tr.info > td {
+        padding : 0px;
+    }
+
+    table.list > tbody > tr.info > td > div.info {
+        border     : solid 4px #3B5998;
+        background : #D6DDEB;
+        padding    : 5px;
+    }
+
+    table.list > tbody > tr.info > td > div.info h1 {
+        font-size   : 110%;
+        font-weight : bold;
+    }
+
+    table.list.editable info {
+        border     : none;
+        background : none;
+        padding    : 0px;
+    }
+
+    /*
+     * Form-List
+     */
+    table.formList {
+        width : 100%;
+    }
+
+    table.formList th {
+        font-style  : italic;
+        font-weight : normal;
+    }
+
+    table.formList td,
+    table.formList th {
+        padding : 2px 0px;
+    }
+
+    table.formList thead {
+        border-bottom : solid 2px #D3E73B;
+    }
+
+    table.formList tfoot {
+        border-top : solid 2px #D3E73B;
+    }
+
+    table.formList input.indexSize {
+        width : 40px;
+    }
+
+    /*
+     * With selected
+     */
+    div.list div.withSelected {
+        margin-left : 7px;
+    }
+
+    div.list div.withSelected img.icon_arrow_turn_090 {
+        top : 0px !important;
+    }
+
+    div.list > div.withSelected > a, div.list > div.withSelected > span {
+        margin : 0px 5px;
+    }
+
+    /* Fix required by Google Chrome. Chops off last button without this. */
+    div.list div.withSelected:after {
+        content : url('../../../images/blank.gif');
+    }
+
 }

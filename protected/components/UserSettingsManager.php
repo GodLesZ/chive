@@ -26,8 +26,8 @@ class UserSettingsManager
 
 	private $configPath;
 	private $host, $user;
-	private $defaultSettings = array();
-	private $userSettings = array();
+	private $defaultSettings = [];
+	private $userSettings    = [];
 
 	public function __construct($host, $user)
 	{
@@ -36,48 +36,80 @@ class UserSettingsManager
 		$this->user = $user;
 
 		// Get config path
-		$this->configPath = Yii::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'user-config' . DIRECTORY_SEPARATOR;
+		$this->configPath = Yii::app()->getRuntimePath().DIRECTORY_SEPARATOR.'user-config'.DIRECTORY_SEPARATOR;
 
 		// Load settings
 		$this->loadSettings();
 
 	}
 
+	private function loadSettings()
+	{
+		// Load settings
+		$this->defaultSettings = $this->loadSettingsFile($this->configPath.'default.xml');
+		if (is_file($this->configPath.$this->host.'.'.$this->user.'.xml')) {
+			$this->userSettings = $this->loadSettingsFile($this->configPath.$this->host.'.'.$this->user.'.xml');
+		}
+	}
+
+	private function loadSettingsFile($filename)
+	{
+		$defaultXml = new SimpleXMLElement(file_get_contents($filename));
+		$settings   = [];
+		foreach ($defaultXml->children() AS $setting) {
+			$name = $setting->getName();
+			if (isset($setting['serialized'])) {
+				$value = unserialize((string)$setting);
+			}
+			else {
+				$value = (string)$setting;
+			}
+			$scope  = (isset($setting['scope']) ? (string)$setting['scope'] : null);
+			$object = (isset($setting['object']) ? (string)$setting['object'] : null);
+
+			$id = $this->getSettingId($name, $scope);
+
+			$settings[$id][$object] = $value;
+		}
+
+		return $settings;
+	}
+
+	private function getSettingId($name, $scope)
+	{
+		return $name.($scope ? '__'.str_replace(".", "_", $scope) : '');
+	}
+
 	/**
 	 * Creates JavaScript representation of settings.
 	 * @todo(mburtscher): Support arrays.
-	 * @return	string
+	 * @return    string
 	 */
 	public function getJsObject()
 	{
-		$jsSettings = 'var userSettings = {};' . "\n";
-		foreach($this->defaultSettings AS $key => $value) {
+		$jsSettings = 'var userSettings = {};'."\n";
+		foreach ($this->defaultSettings AS $key => $value) {
 
 			$value = $value[null];
-			if(is_array($value))
-			{
+			if (is_array($value)) {
 				continue;
 			}
-			if(isset($this->userSettings[$key]))
-			{
-				foreach($this->userSettings[$key] AS $key2 => $value2)
-				{
-					if(is_array($value2))
-					{
+			if (isset($this->userSettings[$key])) {
+				foreach ($this->userSettings[$key] AS $key2 => $value2) {
+					if (is_array($value2)) {
 						continue;
 					}
-					if(!$key2)
-					{
+					if (!$key2) {
 						$value = $value2;
 					}
-					else
-					{
-						$jsSettings .= 'userSettings.' . $key . '__' . str_replace('.', '_', $key2) . ' = "' . str_replace('"', '\"', $value2) . '";' . "\n";
+					else {
+						$jsSettings .= 'userSettings.'.$key.'__'.str_replace('.', '_', $key2).' = "'.str_replace('"', '\"', $value2).'";'."\n";
 					}
 				}
 			}
-			$jsSettings .= 'userSettings.' . $key . ' = "' . str_replace('"', '\"', $value) . '";' . "\n";
+			$jsSettings .= 'userSettings.'.$key.' = "'.str_replace('"', '\"', $value).'";'."\n";
 		}
+
 		return $jsSettings;
 	}
 
@@ -85,164 +117,35 @@ class UserSettingsManager
 	{
 		$id = $this->getSettingId($name, $scope);
 
-		if(isset($this->userSettings[$id]))
-		{
-			if(isset($this->userSettings[$id][$object]))
-			{
-				if($attribute && $value)
-				{
+		if (isset($this->userSettings[$id])) {
+			if (isset($this->userSettings[$id][$object])) {
+				if ($attribute && $value) {
 					return self::findByAttributeValue($this->userSettings[$id][$object], $attribute, $value);
 				}
-				else
-				{
+				else {
 					return $this->userSettings[$id][$object];
 				}
 			}
-			elseif(isset($this->userSettings[$id][null]))
-			{
-				if($attribute && $value)
-				{
+			elseif (isset($this->userSettings[$id][null])) {
+				if ($attribute && $value) {
 					return self::findByAttributeValue($this->userSettings[$id][null], $attribute, $value);
 				}
-				else
-				{
+				else {
 					return $this->userSettings[$id][null];
 				}
 
 			}
 		}
-		elseif(isset($this->defaultSettings[$id]))
-		{
-			if($attribute && $value)
-			{
+		elseif (isset($this->defaultSettings[$id])) {
+			if ($attribute && $value) {
 				return self::findByAttributeValue($this->defaultSettings[$id][null], $attribute, $value);
 			}
-			else
-			{
+			else {
 				return $this->defaultSettings[$id][null];
 			}
 		}
-		else
-		{
-			throw new CException(Yii::t('core','The setting {setting} does not exist.',
-				array('{setting}' => $id)));
-		}
-	}
-
-	public function set($name, $value, $scope = null, $object = null)
-	{
-		$id = $this->getSettingId($name, $scope);
-		if(isset($this->defaultSettings[$id]))
-		{
-			$this->userSettings[$id][$object] = $value;
-		}
-		else
-		{
-			throw new CException(Yii::t('core','The setting {setting} does not exist.',
-				array('{setting}'=>$id)));
-		}
-	}
-
-	private function loadSettings()
-	{
-		// Load settings
-		$this->defaultSettings = $this->loadSettingsFile($this->configPath . 'default.xml');
-		if(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
-			$this->userSettings = $this->loadSettingsFile($this->configPath . $this->host . '.' . $this->user . '.xml');
-		}
-	}
-
-	private function loadSettingsFile($filename)
-	{
-		$defaultXml = new SimpleXMLElement(file_get_contents($filename));
-		$settings = array();
-		foreach($defaultXml->children() AS $setting)
-		{
-			$name = $setting->getName();
-			if(isset($setting['serialized']))
-			{
-				$value = unserialize((string)$setting);
-			}
-			else
-			{
-				$value = (string)$setting;
-			}
-			$scope = (isset($setting['scope']) ? (string)$setting['scope'] : null);
-			$object = (isset($setting['object']) ? (string)$setting['object'] : null);
-
-			$id = $this->getSettingId($name, $scope);
-
-			$settings[$id][$object] = $value;
-		}
-		return $settings;
-	}
-
-	public function saveSettings()
-	{
-		if(count($this->userSettings) > 0)
-		{
-			$xml = new SimpleXmlElement('<settings host="' . $this->host . '" user="' . $this->user . '" />');
-			foreach($this->userSettings AS $key => $values)
-			{
-				list($name, $scope) = $this->getSettingNameScope($key);
-				foreach($values AS $object => $value)
-				{
-					if(is_array($value))
-					{
-						$value = serialize($value);
-						$setSerialized = true;
-					}
-					else
-					{
-						$setSerialized = false;
-					}
-					$settingXml = $xml->addChild($name, $value);
-					if($setSerialized)
-					{
-						$settingXml['serialized'] = true;
-					}
-					if($scope)
-					{
-						$settingXml['scope'] = $scope;
-					}
-					if($object)
-					{
-						$settingXml['object'] = $object;
-					}
-				}
-			}
-		}
-		elseif(is_file($this->configPath . $this->host . '.' . $this->user . '.xml'))
-		{
-			unlink($this->configPath . $this->host . '.' . $this->user . '.xml');
-		}
-		$xml->asXML($this->configPath . $this->host . '.' . $this->user . '.xml');
-	}
-
-	private function getSettingId($name, $scope)
-	{
-		return $name . ($scope ? '__' . str_replace(".", "_", $scope) : '');
-	}
-
-	private function getSettingNameScope($id)
-	{
-		$return = explode('__', $id);
-		if(is_array($return))
-		{
-			if(isset($return[1]))
-			{
-				$return[1] = str_replace("_", ".", $return[1]);
-			}
-			else
-			{
-				$return[1] = null;
-			}
-			return $return;
-		}
-		else
-		{
-			return array($return, null);
+		else {
+			throw new CException(Yii::t('core', 'The setting {setting} does not exist.', ['{setting}' => $id]));
 		}
 	}
 
@@ -250,13 +153,78 @@ class UserSettingsManager
 	{
 		$array = CPropertyValue::ensureArray($array);
 
-		foreach($array AS $key=>$entry)
-		{
-			if($entry[$attribute] == $value)
+		foreach ($array AS $key => $entry) {
+			if ($entry[$attribute] == $value) {
 				return $entry;
+			}
 		}
 
 		return false;
+	}
+
+	public function set($name, $value, $scope = null, $object = null)
+	{
+		$id = $this->getSettingId($name, $scope);
+		if (isset($this->defaultSettings[$id])) {
+			$this->userSettings[$id][$object] = $value;
+		}
+		else {
+			throw new CException(Yii::t('core', 'The setting {setting} does not exist.', ['{setting}' => $id]));
+		}
+	}
+
+	public function saveSettings()
+	{
+		if (count($this->userSettings) > 0) {
+			$xml = new SimpleXmlElement('<settings host="'.$this->host.'" user="'.$this->user.'" />');
+			foreach ($this->userSettings AS $key => $values) {
+				list($name, $scope) = $this->getSettingNameScope($key);
+				foreach ($values AS $object => $value) {
+					if (is_array($value)) {
+						$value         = serialize($value);
+						$setSerialized = true;
+					}
+					else {
+						$setSerialized = false;
+					}
+					$settingXml = $xml->addChild($name, $value);
+					if ($setSerialized) {
+						$settingXml['serialized'] = true;
+					}
+					if ($scope) {
+						$settingXml['scope'] = $scope;
+					}
+					if ($object) {
+						$settingXml['object'] = $object;
+					}
+				}
+			}
+		}
+		elseif (is_file($this->configPath.$this->host.'.'.$this->user.'.xml')) {
+			unlink($this->configPath.$this->host.'.'.$this->user.'.xml');
+		}
+		$xml->asXML($this->configPath.$this->host.'.'.$this->user.'.xml');
+	}
+
+	private function getSettingNameScope($id)
+	{
+		$return = explode('__', $id);
+		if (is_array($return)) {
+			if (isset($return[1])) {
+				$return[1] = str_replace("_", ".", $return[1]);
+			}
+			else {
+				$return[1] = null;
+			}
+
+			return $return;
+		}
+		else {
+			return [
+				$return,
+				null
+			];
+		}
 	}
 
 }
